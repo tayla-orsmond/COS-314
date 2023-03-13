@@ -2,3 +2,5 @@
 *.zip
 Completed/
 *.png
+*.class
+*.jar

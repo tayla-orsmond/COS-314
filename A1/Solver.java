@@ -14,8 +14,9 @@ public abstract class Solver {
     protected int capacity; // The capacity of the bins
     protected String pi; // The name of the PI
     protected ArrayList<Integer> items; // The data of the PI
-    protected int optimal; // The optimal solution
-    protected int best; // The best solution found
+    protected int optimal; // The optimal solution (for evaluation)
+    protected int best; // The best solution found (no. of bins)
+    protected ArrayList<ArrayList<Integer>> bestBins; // The best solution found (bins)
     protected long time; // The time to solve the PI
     protected ArrayList<ArrayList<Integer>> bins; // The bins used to solve the PI
     protected ArrayList<String> existingSummaries;
@@ -28,6 +29,7 @@ public abstract class Solver {
         this.time = 0;
         this.bins = new ArrayList<ArrayList<Integer>>();
         this.items = new ArrayList<Integer>();
+        this.bestBins = new ArrayList<ArrayList<Integer>>();
         this.existingSummaries = new ArrayList<String>();
     }
 
@@ -44,9 +46,22 @@ public abstract class Solver {
         }
     }
 
+    public void clear() {
+        this.best = Integer.MAX_VALUE;
+        this.optimal = 0;
+        this.time = 0;
+        this.bins.clear();
+        this.items.clear();
+        this.bestBins.clear();
+    }
+
     // Getters
     public int getBestSolution() {
         return this.best;
+    }
+
+    public int getOptimalSolution() {
+        return this.optimal;
     }
 
     public long getTime() {
@@ -60,6 +75,7 @@ public abstract class Solver {
         }
         return bins;
     }
+
     // Helpers
     // Check if a bin can fit a new item
     public boolean canFit(ArrayList<Integer> bin, int item) {
@@ -72,6 +88,19 @@ public abstract class Solver {
         }
         return false;
     }
+    // Make a deep copy of the bins to put in bestBins
+    public void setBestBins() {
+        this.bestBins.clear();
+        for (ArrayList<Integer> bin : this.bins) {
+            ArrayList<Integer> newBin = new ArrayList<Integer>();
+            for (int item : bin) {
+                newBin.add(item);
+            }
+            this.bestBins.add(newBin);
+        }
+
+    }
+
     // Write the results to a file for this PI
     public void writeResults(String path) {
         try {

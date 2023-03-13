@@ -9,8 +9,8 @@ public class Main {
     // Test datasets
     private static String[] testDatasets = {
         "Test/Test_1",
-        "Test/Test_2",
-        "Test_3"
+        // "Test/Test_2",
+        // "Test_3"
     };
     // Data set paths 
     private static String[] datasets = {
@@ -41,6 +41,7 @@ public class Main {
                     ArrayList<String> data = loader.readFile(dataset + "/" + pi);
 
                     // Solve the bin packing problem for the PI using ILS
+                    ils.clear(); // Clear the ILS object
                     ils.setPI(pi);
                     ils.setData(data);
                     ils.solve();
@@ -48,6 +49,7 @@ public class Main {
                     System.out.println("[ILS] PI: "+ pi + " -> No of bins: " + ils.getBestSolution() + " Time to Solve: " + ils.getTime()); // Print the best solution & time to solve
 
                     // Solve the bin packing problem for the PI using Tabu Search
+                    ts.clear(); // Clear the Tabu Search object
                     ts.setPI(pi);
                     ts.setData(data);
                     ts.solve();
