@@ -46,7 +46,7 @@ public class ILS extends Solver {
        
         // 1. Generate initial solition
         // Sort the items by size (descending)
-        Collections.sort(this.items, Collections.reverseOrder());
+        //Collections.sort(this.items, Collections.reverseOrder());
         // Pack the items into bins using the best fit heuristic (i.e., the bin with the least amount of space left)
         bestFit();
         // Store the solution as the current best solution
@@ -239,15 +239,15 @@ public class ILS extends Solver {
         // Get a random item from each bin
         int randomItem1 = this.bins.get(randomBin1).get((int) (Math.random() * this.bins.get(randomBin1).size()));
         int randomItem2 = this.bins.get(randomBin2).get((int) (Math.random() * this.bins.get(randomBin2).size()));
-        while(randomItem1 < randomItem2) {
-            randomItem1 = this.bins.get(randomBin1).get((int) (Math.random() * this.bins.get(randomBin1).size()));
-            randomItem2 = this.bins.get(randomBin2).get((int) (Math.random() * this.bins.get(randomBin2).size()));
-            if (Math.random() < 0.3) {
-                break;
-            }
-        }
+        
         // Swap the items if possible
         if(randomItem1 > randomItem2 && this.bins.get(randomBin2).stream().mapToInt(Integer::intValue).sum() - randomItem2 + randomItem1 <= this.capacity) {
+            this.bins.get(randomBin1).remove(randomItem1);
+            this.bins.get(randomBin2).remove(randomItem2);
+            this.bins.get(randomBin1).add(randomItem2);
+            this.bins.get(randomBin2).add(randomItem1);
+            return true;
+        } else if (randomItem2 > randomItem1 && this.bins.get(randomBin1).stream().mapToInt(Integer::intValue).sum() - randomItem1 + randomItem2 <= this.capacity) {
             this.bins.get(randomBin1).remove(randomItem1);
             this.bins.get(randomBin2).remove(randomItem2);
             this.bins.get(randomBin1).add(randomItem2);
