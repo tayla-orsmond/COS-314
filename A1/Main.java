@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Main {
     // Capacity of the bins
-    private static final int CAPACITY = 1000;
+    private static final int CAPACITY = 1100;
     // Test datasets
     private static String[] testDatasets = {
         "Test/Test_1",

@@ -2,13 +2,14 @@
 // Tabu Search to solve the bin packing problem
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TabuSearch extends Solver {
     public TabuSearch(int capacity) {
         super(capacity);
     }
     public void solve() {
-        long start = System.currentTimeMillis();
+        AtomicLong start = new AtomicLong(System.currentTimeMillis());
         //Solve 
         ArrayList<Integer> bin = new ArrayList<Integer>();
     
@@ -32,7 +33,7 @@ public class TabuSearch extends Solver {
 
         //TODO: Actual solution. this is a tester solution to see if the file reading / writing works
 
-        long end = System.currentTimeMillis();
-        this.time = end - start;
+        //end timer
+        this.time.set(System.currentTimeMillis() - start.get());
     }
 }

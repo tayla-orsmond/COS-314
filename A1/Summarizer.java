@@ -8,14 +8,14 @@ import java.util.ArrayList;
 
 public class Summarizer {
     private ArrayList<String> summaries;
-    private Integer totalTimeForILS;
-    private Integer totalTimeForTabu;
+    private Long totalTimeForILS;
+    private Long totalTimeForTabu;
     private Integer totalPIsTested;
 
     Summarizer() {
         summaries = new ArrayList<String>();
-        totalTimeForILS = 0;
-        totalTimeForTabu = 0;
+        totalTimeForILS = 0L;
+        totalTimeForTabu = 0L;
         totalPIsTested = 0;
     }
 
@@ -51,23 +51,23 @@ public class Summarizer {
         Integer totalOptimal = 0;
         Integer totalNearOptimal = 0;
         Integer totalSubOptimal = 0;
-        Integer totalTime = 0;
-        Integer avgTime = 0;
+        Long totalTime = 0L;
+        Long avgTime = 0L;
 
         // Loop through the results
         for (String result : results) {
             // Split the result into an array
             String[] splitResult = result.split(":");
             // Check if the result is optimal
-            if (splitResult[1].compareTo("O") == 0) {
+            if (splitResult[0].compareTo("O") == 0) {
                 totalOptimal++;
-            } else if (splitResult[1].compareTo("N") == 0) {
+            } else if (splitResult[0].compareTo("N") == 0) {
                 totalNearOptimal++;
-            } else if (splitResult[1].compareTo("S") == 0) {
+            } else if (splitResult[0].compareTo("S") == 0) {
                 totalSubOptimal++;
             }
             // Add the time to the total time
-            totalTime += Integer.parseInt(splitResult[2]);
+            totalTime += Long.parseLong(splitResult[2]);
             // Increment the total number of PIs
             totalPIs++;
         }
@@ -82,7 +82,7 @@ public class Summarizer {
         // Add the total number of PIs to the total number of PIs tested
         totalPIsTested += totalPIs;
         // Return the summary of the results
-        return "\n\t" + algorithm + " [Optimal: " + totalOptimal + " NearOptimal: " + totalNearOptimal + " SubOptimal: " + totalSubOptimal + " Total: " + totalPIs + " AvgTime: " + avgTime + "]";
+        return "\n\t" + algorithm + " [Optimal: " + totalOptimal + " NearOptimal: " + totalNearOptimal + " SubOptimal: " + totalSubOptimal + " Total: " + totalPIs + " AvgTime: " + avgTime + "ms]";
     }
 
     // Write the results to a file

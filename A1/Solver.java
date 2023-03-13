@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Solver {
     // Variables
@@ -17,7 +19,7 @@ public abstract class Solver {
     protected int optimal; // The optimal solution (for evaluation)
     protected int best; // The best solution found (no. of bins)
     protected ArrayList<ArrayList<Integer>> bestBins; // The best solution found (bins)
-    protected long time; // The time to solve the PI
+    protected AtomicLong time; // The time taken to solve the PI
     protected ArrayList<ArrayList<Integer>> bins; // The bins used to solve the PI
     protected ArrayList<String> existingSummaries;
 
@@ -26,7 +28,7 @@ public abstract class Solver {
         this.capacity = capacity;
         this.best = Integer.MAX_VALUE;
         this.optimal = 0;
-        this.time = 0;
+        this.time = new AtomicLong(0);
         this.bins = new ArrayList<ArrayList<Integer>>();
         this.items = new ArrayList<Integer>();
         this.bestBins = new ArrayList<ArrayList<Integer>>();
@@ -49,7 +51,7 @@ public abstract class Solver {
     public void clear() {
         this.best = Integer.MAX_VALUE;
         this.optimal = 0;
-        this.time = 0;
+        this.time.set(0);
         this.bins.clear();
         this.items.clear();
         this.bestBins.clear();
@@ -65,7 +67,7 @@ public abstract class Solver {
     }
 
     public long getTime() {
-        return this.time;
+        return this.time.get();
     }
 
     public String getBins() {
@@ -98,7 +100,6 @@ public abstract class Solver {
             }
             this.bestBins.add(newBin);
         }
-
     }
 
     // Write the results to a file for this PI
@@ -122,7 +123,7 @@ public abstract class Solver {
             } else {
                 writer.write(" (Sub Optimal)");
             }
-            writer.write("\nTime to Solve: " + this.time);
+            writer.write("\nTime to Solve: " + this.getTime());
             writer.write("\nBins: {");
             writer.write(this.getBins());
             writer.write("\n}");

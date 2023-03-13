@@ -14,6 +14,7 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ILS extends Solver {
     public ILS(int capacity) {
@@ -21,7 +22,7 @@ public class ILS extends Solver {
     }
 
     public void solve () {
-        long start = System.currentTimeMillis();
+        AtomicLong start = new AtomicLong(System.currentTimeMillis());
         
         // Solve the bin packing problem using the Iterated Local Search algorithm
         // 1. Start with the best fit heuristic to pack the items into bins (should data be sorted?)
@@ -52,8 +53,8 @@ public class ILS extends Solver {
         setBestBins();
         this.best = this.bins.size();
         if(this.best == 1) {
-            long end = System.currentTimeMillis();
-            this.time = end - start;
+            //end timer
+            this.time.set(System.currentTimeMillis() - start.get());
             return;
         }
         // 2. Apply a local search algorithm to search for the least-filled bin and pack the items from that bin into other bins
@@ -61,7 +62,6 @@ public class ILS extends Solver {
         do {
             do {
                 int leastFilledBin = getLeastFilledBin();
-                System.out.println("Least filled bin: " + leastFilledBin);
                 // Try to move the items from the least-filled bin to another bin/s
                 tryEmptyLeastFilledBin(leastFilledBin);
                 // If the least-filled bin is empty, repeat the process for the next least-filled bin
@@ -71,22 +71,17 @@ public class ILS extends Solver {
                     setBestBins();
                     this.best = this.bins.size();
                     repeat = true;
-                    System.out.println("Empty bin");
                 } else {
                     repeat = false;
-                    System.out.println("Not empty");
                 }
             } while (repeat);
             
             // 3. If the least filled bin cannot be emptied, swap an item from the least filled bin with an item in a random bin
             //Take the largest piece from the lowest filled bin, and exchange with a smaller piece from a random bin (if possible)
             int leastFilledBin = getLeastFilledBin();
-            System.out.println("Least filled bin: " + leastFilledBin);
             Boolean shuffled = shuffle(leastFilledBin);
-            System.out.println("Shuffled: " + shuffled);
             if(shuffled) {
                 repeat = true;
-                System.out.println("Shuffle");
             } else {
                 repeat = false;
             }
@@ -101,8 +96,8 @@ public class ILS extends Solver {
             }
         } while (repeat);
 
-        long end = System.currentTimeMillis();
-        this.time = end - start;
+        //end timer
+        this.time.set(System.currentTimeMillis() - start.get());
     }
 
     // Best fit heuristic
@@ -174,10 +169,8 @@ public class ILS extends Solver {
         // Take the largest piece from the lowest filled bin, and exchange with a smaller piece from a random bin (if possible)
         // Get the largest item from the least filled bin
         int largestItem = this.bins.get(leastFilledBin).stream().mapToInt(Integer::intValue).max().getAsInt();
-        System.out.println("Largest item: " + largestItem);
         // Get a random bin
         int randomBin = (int) (Math.random() * this.bins.size());
-        System.out.println("Random bin: " + randomBin);
         int smallestItem = 0;
         do {
             randomBin = (int) (Math.random() * this.bins.size());
@@ -187,7 +180,6 @@ public class ILS extends Solver {
             }
             // Get the smallest item from the random bin
             smallestItem = this.bins.get(randomBin).stream().mapToInt(Integer::intValue).min().getAsInt();
-            System.out.println("Smallest item: " + smallestItem);
             if(Math.random() < 0.3) {
                 return false;
             }
