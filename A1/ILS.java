@@ -52,11 +52,6 @@ public class ILS extends Solver {
         // Store the solution as the current best solution
         setBestBins();
         this.best = this.bins.size();
-        if(this.best == 1) {
-            //end timer
-            this.time.set(System.currentTimeMillis() - start.get());
-            return;
-        }
         // 2. Apply a local search algorithm to search for the least-filled bin and pack the items from that bin into other bins
         Boolean repeat = false;
         do {
@@ -75,7 +70,6 @@ public class ILS extends Solver {
                     repeat = false;
                 }
             } while (repeat);
-            
             // 3. If the least filled bin cannot be emptied, swap an item from the least filled bin with an item in a random bin
             //Take the largest piece from the lowest filled bin, and exchange with a smaller piece from a random bin (if possible)
             int leastFilledBin = getLeastFilledBin();
@@ -84,17 +78,29 @@ public class ILS extends Solver {
                 repeat = true;
             } else {
                 repeat = false;
+                // Randomly swap two items in two random bins (if possible & if the new solution is better than the current solution)
+                Boolean swapped = swap();
+                if(swapped) {
+                    repeat = true;
+                } else {
+                    repeat = false;
+                }
             }
+            
             // If the new solution is better than the current solution, update the current solution
-            if (this.bins.size() < this.best || Math.random() < 0.5) {
+            if (this.bins.size() <= this.best || Math.random() < 0.4) {
                 setBestBins();
                 this.best = this.bins.size();
+            } else { // backtrack?
+                setBins();
+                this.best = this.bins.size();
             }
-            // Generate a random number between 0 and 1, if the number is less than 0.4, stop
+            // Generate a random number between 0 and 1, if the number is less than 0.3, stop
             if (Math.random() < 0.3) {
                 repeat = false;
             }
-        } while (repeat);
+
+        } while (repeat && this.bins.size() > 1);
 
         //end timer
         this.time.set(System.currentTimeMillis() - start.get());
@@ -161,6 +167,9 @@ public class ILS extends Solver {
                 this.bins.get(leastSpaceLeftBin).add(item);
                 this.bins.get(leastFilledBin).remove(item);
             }
+            if (this.bins.get(leastFilledBin).isEmpty()) {
+                break;
+            }
         }
     }
 
@@ -180,22 +189,71 @@ public class ILS extends Solver {
             }
             // Get the smallest item from the random bin
             smallestItem = this.bins.get(randomBin).stream().mapToInt(Integer::intValue).min().getAsInt();
+
+            // Random chance to not shuffle
             if(Math.random() < 0.3) {
                 return false;
             }
-            // Ensure that the largest item can fit in the random bin after the smallest item is removed
-        } while (this.capacity - this.bins.get(randomBin).stream().mapToInt(Integer::intValue).sum() + smallestItem < largestItem);
+            //Ensure that the largest item is larger than the smallest item
+        } while (smallestItem >= largestItem);
         
-        
-        // If the largest item is larger than the smallest item, swap the items
-        if (largestItem > smallestItem) {
+        // Swap the largest item from the least filled bin with the smallest item from the random bin (if possible)
+        if(this.bins.get(randomBin).stream().mapToInt(Integer::intValue).sum() - smallestItem  + largestItem <= this.capacity) {
             this.bins.get(leastFilledBin).remove(largestItem);
             this.bins.get(leastFilledBin).add(smallestItem);
             this.bins.get(randomBin).remove(smallestItem);
             this.bins.get(randomBin).add(largestItem);
             return true;
-        } else {
-            return false;
+        } else if (this.bins.get(randomBin).size() > 1) {
+            // Swap the largest item from the least filled bin with two smaller items from the random bin
+            // Get the second smallest item from the random bin
+            int secondSmallestItem = Integer.MAX_VALUE;
+            for (Integer item : this.bins.get(randomBin)) {
+                if (item < secondSmallestItem && item != smallestItem) {
+                    secondSmallestItem = item;
+                }
+            }
+            // Ensure that the largest item can fit in the random bin after the smallest two items are removed
+            if((secondSmallestItem + smallestItem < largestItem) && this.bins.get(randomBin).stream().mapToInt(Integer::intValue).sum() - smallestItem - secondSmallestItem + largestItem <= this.capacity) {
+                this.bins.get(leastFilledBin).remove(largestItem);
+                this.bins.get(randomBin).remove(smallestItem);
+                this.bins.get(randomBin).remove(secondSmallestItem);
+                this.bins.get(leastFilledBin).add(smallestItem);
+                this.bins.get(leastFilledBin).add(secondSmallestItem);
+                this.bins.get(randomBin).add(largestItem);
+                return true;
+            }
         }
+        return false;
+    }
+
+    // Swap items from two random bins (if possible)
+    private Boolean swap() {
+        // Get two random bins
+        int randomBin1 = (int) (Math.random() * this.bins.size());
+        int randomBin2 = (int) (Math.random() * this.bins.size());
+        // If the random bins are the same, get another random bin
+        while (randomBin1 == randomBin2) {
+            randomBin2 = (int) (Math.random() * this.bins.size());
+        }
+        // Get a random item from each bin
+        int randomItem1 = this.bins.get(randomBin1).get((int) (Math.random() * this.bins.get(randomBin1).size()));
+        int randomItem2 = this.bins.get(randomBin2).get((int) (Math.random() * this.bins.get(randomBin2).size()));
+        while(randomItem1 < randomItem2) {
+            randomItem1 = this.bins.get(randomBin1).get((int) (Math.random() * this.bins.get(randomBin1).size()));
+            randomItem2 = this.bins.get(randomBin2).get((int) (Math.random() * this.bins.get(randomBin2).size()));
+            if (Math.random() < 0.3) {
+                break;
+            }
+        }
+        // Swap the items if possible
+        if(randomItem1 > randomItem2 && this.bins.get(randomBin2).stream().mapToInt(Integer::intValue).sum() - randomItem2 + randomItem1 <= this.capacity) {
+            this.bins.get(randomBin1).remove(randomItem1);
+            this.bins.get(randomBin2).remove(randomItem2);
+            this.bins.get(randomBin1).add(randomItem2);
+            this.bins.get(randomBin2).add(randomItem1);
+            return true;
+        }
+        return false;
     }
 }

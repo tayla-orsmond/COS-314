@@ -5,24 +5,21 @@ import java.io.IOException;
 
 public class Main {
     // Capacity of the bins
-    private static final int CAPACITY = 1100;
-    // Test datasets
-    private static String[] testDatasets = {
-        "Test/Test_1",
-        // "Test/Test_2",
-        // "Test_3"
-    };
+    private static final int CAPACITY = 1000;
     // Data set paths 
     private static String[] datasets = {
-        "Falkenauer/Falkenauer_T",
-        "Falkenauer/Falkenauer_U",
+        // "Test/Test_1",
+        // "Test/Test_2",
+        "Test_3",
+        // "Falkenauer/Falkenauer_T",
+        // "Falkenauer/Falkenauer_U",
         "Hard28",
-        "Scholl/Scholl_1",
-        "Scholl/Scholl_2",
-        "Scholl/Scholl_3",
-        "Schwerin/Schwerin_1",
-        "Schwerin/Schwerin_2",
-        "Waescher",
+        // "Scholl/Scholl_1",
+        // "Scholl/Scholl_2",
+        // "Scholl/Scholl_3",
+        // "Schwerin/Schwerin_1",
+        // "Schwerin/Schwerin_2",
+        // "Waescher",
     };
     
     public static void main(String[] args) {
@@ -32,7 +29,7 @@ public class Main {
         TabuSearch ts = new TabuSearch(CAPACITY);
         try {
             // Loop through the datasets
-            for (String dataset : testDatasets) {
+            for (String dataset : datasets) {
                 // Load the dataset
                 ArrayList<String> pis = loader.loadDataset(dataset);
                 // Loop through the PIs (files)
@@ -70,7 +67,7 @@ public class Main {
         // Create a new summarizer object (Calculates and summarizes the results)
         Summarizer summarizer = new Summarizer();
         // Loop through the datasets
-        for (String dataset : testDatasets) {
+        for (String dataset : datasets) {
             // Summarize the dataset
             summarizer.summarize(dataset, "Solutions/ILS/" + dataset + "/Summary.txt", "Solutions/Tabu/" + dataset + "/Summary.txt");
         }

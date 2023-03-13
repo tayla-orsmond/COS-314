@@ -101,6 +101,17 @@ public abstract class Solver {
             this.bestBins.add(newBin);
         }
     }
+    // Make a deep copy of the bestBins to put in bins
+    public void setBins() {
+        this.bins.clear();
+        for (ArrayList<Integer> bin : this.bestBins) {
+            ArrayList<Integer> newBin = new ArrayList<Integer>();
+            for (int item : bin) {
+                newBin.add(item);
+            }
+            this.bins.add(newBin);
+        }
+    }
 
     // Write the results to a file for this PI
     public void writeResults(String path) {
