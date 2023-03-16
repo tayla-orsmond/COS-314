@@ -111,6 +111,81 @@ public abstract class Solver {
         }
     }
 
+    protected void bestFitAll(){
+        for(Integer item : this.items){
+            bestFit(item);
+        }
+    }
+    protected void bestFit(Integer item){
+        // 2. Pack items according to best fit heuristic (pack the item in the bin that results in the least space left after packing)
+        int bestBin = -1;
+        int bestSpace = this.capacity;
+        // Get the bin that will have the least space left after packing the item
+        for(ArrayList<Integer> bin : this.bins){
+            int space = this.capacity - bin.stream().mapToInt(Integer::intValue).sum() - item;
+            if(space >= 0 && space < bestSpace){// item can fit & fits better than previous best
+                bestBin = this.bins.indexOf(bin);
+                bestSpace = space;
+            }
+        }
+
+        if(bestBin == -1){ //No bin found
+            //Create new bin
+            ArrayList<Integer> newBin = new ArrayList<>(this.capacity);
+            newBin.add(item);
+            this.bins.add(newBin);
+        } else {
+            //Add item to bin
+            this.bins.get(bestBin).add(item);
+        }
+    }
+    
+    protected int getBin(char picked){
+        switch(picked){
+            case 'L':
+                return leastFilledBin();
+            case 'R':
+                Boolean bias = Math.random() < 0.6; //Bias towards the back half of the bins
+                if(bias){
+                    return (int)(Math.random() * (this.bins.size() / 2)) + (this.bins.size() / 2);
+                }
+                return (int)(Math.random() * this.bins.size());
+            default:
+                return 0;
+        }
+    }
+
+    protected int leastFilledBin(){
+        int leastFilledBin = 0;
+        int leastFilled = sizeOf(leastFilledBin);
+        for(int i = 1; i < this.bins.size(); i++){
+            if(sizeOf(i) < leastFilled){
+                leastFilledBin = i;
+                leastFilled = sizeOf(i);
+            }
+        }
+        return leastFilledBin;
+    }
+    protected void tryEmptyBin(int binToEmpty){
+        //copy & remove the bin we are trying to empty
+        ArrayList<Integer> bin = new ArrayList<>(this.bins.get(binToEmpty));
+        this.bins.remove(binToEmpty);
+        for(Integer item : bin){
+            bestFit(item);
+        }
+    }
+    protected void trySwap(int pickedBin, int randomBin){
+        // 4. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
+        int randomItem = (int)(Math.random() * this.bins.get(randomBin).size());
+        int pickedItem = (int)(Math.random() * this.bins.get(pickedBin).size());
+        if(pickedItem > randomItem && sizeOf(randomBin) + pickedItem <= this.capacity && sizeOf(pickedBin) + randomItem <= this.capacity){
+            //swap
+            Integer temp = this.bins.get(randomBin).get(randomItem);
+            this.bins.get(randomBin).set(randomItem, this.bins.get(pickedBin).get(pickedItem));
+            this.bins.get(pickedBin).set(pickedItem, temp);
+        }
+    }
+
     // Write the results to a file for this PI
     public void writeResults(String path) {
         try {
