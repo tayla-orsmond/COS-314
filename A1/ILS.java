@@ -17,8 +17,8 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ILS extends Solver {
-    public ILS(int capacity) {
-        super(capacity);
+    public ILS() {
+        super();
     }
 
     public void solve () {
@@ -46,7 +46,7 @@ public class ILS extends Solver {
        
         // 1. Generate initial solition
         // Sort the items by size (descending)
-        //Collections.sort(this.items, Collections.reverseOrder());
+        Collections.sort(this.items, Collections.reverseOrder()); 
         // Pack the items into bins using the best fit heuristic (i.e., the bin with the least amount of space left)
         bestFit();
         // Store the solution as the current best solution

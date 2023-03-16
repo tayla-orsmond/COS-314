@@ -42,6 +42,7 @@ public class Summarizer {
             summaries.add(summary);
         } catch (IOException e) {
             System.out.println("[Summarizer] Error reading SUMMARY files: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -111,6 +112,7 @@ public class Summarizer {
             writer.close();
         } catch (IOException e) {
             System.out.println("[Summarizer] Error writing summary: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

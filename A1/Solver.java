@@ -24,8 +24,8 @@ public abstract class Solver {
     protected ArrayList<String> existingSummaries;
 
     // Constructor
-    public Solver(int capacity) {
-        this.capacity = capacity;
+    public Solver() {
+        this.capacity = 0;
         this.best = Integer.MAX_VALUE;
         this.optimal = 0;
         this.time = new AtomicLong(0);
@@ -40,8 +40,13 @@ public abstract class Solver {
         this.pi = pi;
     }
 
+    public void setOptimal(int optimal) {
+        this.optimal = optimal;
+    }
+
     public void setData(ArrayList<String> data) {
-        this.optimal = Integer.parseInt(data.get(0));
+        data.remove(0);//no. of items in the PI
+        this.capacity = Integer.parseInt(data.get(0));
         data.remove(0);
         for (String item : data) {
             this.items.add(Integer.parseInt(item));
@@ -49,6 +54,7 @@ public abstract class Solver {
     }
 
     public void clear() {
+        this.capacity = 0;
         this.best = Integer.MAX_VALUE;
         this.optimal = 0;
         this.time.set(0);
