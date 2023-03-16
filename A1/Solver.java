@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Solver {
@@ -85,22 +84,15 @@ public abstract class Solver {
     }
 
     // Helpers
-    // Check if a bin can fit a new item
-    public boolean canFit(ArrayList<Integer> bin, int item) {
-        int total = 0;
-        for (int i : bin) {
-            total += i;
-        }
-        if (total + item <= this.capacity) {
-            return true;
-        }
-        return false;
+    // Get the size of the bin (combined weight of items in the bin)
+    public Integer sizeOf(int bin){
+        return this.bins.get(bin).stream().mapToInt(Integer::intValue).sum();
     }
     // Make a deep copy of the bins to put in bestBins
     public void setBestBins() {
         this.bestBins.clear();
         for (ArrayList<Integer> bin : this.bins) {
-            ArrayList<Integer> newBin = new ArrayList<Integer>();
+            ArrayList<Integer> newBin = new ArrayList<Integer>(this.capacity);
             for (int item : bin) {
                 newBin.add(item);
             }
@@ -111,7 +103,7 @@ public abstract class Solver {
     public void setBins() {
         this.bins.clear();
         for (ArrayList<Integer> bin : this.bestBins) {
-            ArrayList<Integer> newBin = new ArrayList<Integer>();
+            ArrayList<Integer> newBin = new ArrayList<Integer>(this.capacity);
             for (int item : bin) {
                 newBin.add(item);
             }
@@ -138,7 +130,7 @@ public abstract class Solver {
             } else if (this.best == this.optimal + 1) {
                 writer.write(" (Near Optimal)");
             } else {
-                writer.write(" (Sub Optimal)");
+                writer.write(" (Sub Optimal) - off by: " + (this.best - this.optimal));
             }
             writer.write("\nTime to Solve: " + this.getTime());
             writer.write("\nBins: {");

@@ -1,5 +1,6 @@
 // Tayla Orsmond u21467456
 // Iterated Local Search class to solve the bin packing problem
+// ILS Pseudocode:
 // 1. Generate an initial solution using a constructive heuristic or random method.
 // 	    Initial construction of your node/s (partial) or a complete search space.
 // 2. Apply a local search algorithm to improve the solution (perturb).
@@ -21,239 +22,171 @@ public class ILS extends Solver {
         super();
     }
 
-    public void solve () {
+    // Algorithm:
+    // 1. Order the items in descending order.
+    // 2. Pack the items in the bins using best fit OR better fit algo. 
+    //      (pack the item in the bin that results in the least space left after packing)
+    //      - Record initial solution
+    // 3. *Search for the least filled bin & attempt to empty it by taking those items and repacking them in other bins
+    //      - Repeat as long as a bin can be emptied
+    //      - Record better solutions
+    // 4. *Search for the least filled bin & attempt to swap an item from that bin with an item from a random bin
+    //      (swap if possible and if the random bin is better filled i.e., leastfilledItem > randomItem)
+    //      - If not possible swap with two items from the random bin (if possible and if the random bin is better filled)
+    // 5. *Pick a random bin and attempt to empty it by taking those items and repacking them in other bins
+    //      - This can be biased towards the back half of the bins since the data is ordered
+    //      - Otherwise pick a random bin
+        //  - *Can pick x random bins?
+    // 6. *Pick a random bin and swap it with an item from another random bin if the second random bin is better filled
+    // * Choose & Repeat as long as something happens or until a random no. threshold
+    // * Update solution if better (something happens) or if a random no. threshold
+    // Use one heuristic to generate child, use another for the other child - evaluate and pick better of the two?
+    // Record final solution 
+    // Record time.
+
+    public void solve(){
         AtomicLong start = new AtomicLong(System.currentTimeMillis());
-        
-        // Solve the bin packing problem using the Iterated Local Search algorithm
-        // 1. Start with the best fit heuristic to pack the items into bins (should data be sorted?)
-            // - Sort the items by size (descending)(?)
-            // - Pack the items into bins using the best fit heuristic (i.e., the bin with the least amount of space left)
-            // - Store the solution as the current best solution
-        // 2. Apply a local search algorithm to search for the least-filled bin and pack the items from that bin into other bins
-            // - Try to move an item from the least-filled bin to another bin
-            // - If the item can be moved to another bin, and the new item better fills the bin, move it
-            // - If the item cannot be moved to another bin, move to the next item
-        // 3. If the least-filled bin is empty, repeat the process for the next least-filled bin
-            // - If the new solution is better than the current solution, update the current solution
-        // 4. If the least filled bin cannot be emptied, swap an item from the least filled bin with an item in a random bin
-            // - If the new solution is better than the current solution, update the current solution
-            // - Repeat the process 
-        // 5. Repeat steps 2-4 until a stopping criterion is met (Acceptance criteria).
-            // - Stop when the best solution found is the same as the optimal solution
-            // - Generate a random number between 0 and 1, if the number is less than 0.5, stop
-        // ?? May need to keep track of several best solutions to backtrack to if the current solution is not better than the best solution
-       
-       
-        // 1. Generate initial solition
-        // Sort the items by size (descending)
+        // 1.
         Collections.sort(this.items, Collections.reverseOrder()); 
-        // Pack the items into bins using the best fit heuristic (i.e., the bin with the least amount of space left)
-        bestFit();
-        // Store the solution as the current best solution
+        // 2.
+        bestFitAll();
         setBestBins();
-        this.best = this.bins.size();
-        // 2. Apply a local search algorithm to search for the least-filled bin and pack the items from that bin into other bins
+        this.best = this.bins.size(); //Initial best no. of bins
+        // 3.-6.
         Boolean repeat = false;
-        do {
-            do {
-                int leastFilledBin = getLeastFilledBin();
-                // Try to move the items from the least-filled bin to another bin/s
-                tryEmptyLeastFilledBin(leastFilledBin);
-                // If the least-filled bin is empty, repeat the process for the next least-filled bin
-                // If the new solution is better than the current solution, update the current solution
-                if (this.bins.get(leastFilledBin).isEmpty()) {
-                    this.bins.remove(leastFilledBin);
-                    setBestBins();
-                    this.best = this.bins.size();
-                    repeat = true;
-                } else {
-                    repeat = false;
-                }
-            } while (repeat);
-            // 3. If the least filled bin cannot be emptied, swap an item from the least filled bin with an item in a random bin
-            //Take the largest piece from the lowest filled bin, and exchange with a smaller piece from a random bin (if possible)
-            int leastFilledBin = getLeastFilledBin();
-            Boolean shuffled = shuffle(leastFilledBin);
-            if(shuffled) {
-                repeat = true;
+        do{
+            //Choose whether to pick a random bin or the least filled bin
+            char picked;
+            if(Math.random() < 0.6){
+                picked = 'L'; //least-filled bin
             } else {
-                repeat = false;
-                // Randomly swap two items in two random bins (if possible & if the new solution is better than the current solution)
-                Boolean swapped = swap();
-                if(swapped) {
+                picked = 'R'; //random bin
+            }
+            // 3. & 5. Attempt to empty the bin
+            int pickedBin;
+            do {
+                pickedBin = getBin(picked);
+                int PBSize = sizeOf(pickedBin);
+                tryEmptyBin(pickedBin);
+                //check if bin still exists
+                try{
+                    sizeOf(pickedBin);
+                } catch (IndexOutOfBoundsException e){
+                    pickedBin = -1;
+                }
+                if (this.bins.size() < this.best || (pickedBin != -1 && sizeOf(pickedBin) < PBSize) ) {
+                    setBestBins();
+                    this.best = this.bins.size(); //New no.of bins
                     repeat = true;
                 } else {
+                    setBins(); // Backtrack
                     repeat = false;
                 }
-            }
-            
-            // If the new solution is better than the current solution, update the current solution
-            if (this.bins.size() <= this.best || Math.random() < 0.4) {
-                setBestBins();
-                this.best = this.bins.size();
-            } else { // backtrack?
-                setBins();
-                this.best = this.bins.size();
-            }
-            // Generate a random number between 0 and 1, if the number is less than 0.3, stop
-            if (Math.random() < 0.3) {
-                repeat = false;
-            }
+            } while(repeat);
 
-        } while (repeat && this.bins.size() > 1);
-
-        //end timer
+            // 4. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
+            do {
+                pickedBin = getBin(picked);
+                int PBSize = sizeOf(pickedBin);
+                int randomBin = (int)(Math.random() * this.bins.size());
+                int RBSize = sizeOf(randomBin);
+                trySwap(pickedBin, randomBin);
+                //check if bin still exists
+                try{
+                    sizeOf(pickedBin);
+                } catch (IndexOutOfBoundsException e){
+                    pickedBin = -1;
+                }
+                try{
+                    sizeOf(randomBin);
+                } catch (IndexOutOfBoundsException e){
+                    randomBin = -1;
+                }
+                if (this.bins.size() < this.best || (pickedBin != -1 && sizeOf(pickedBin) < PBSize) || (randomBin != -1 && sizeOf(randomBin) < RBSize) ) {
+                    setBestBins();
+                    this.best = this.bins.size(); //New no.of bins
+                    repeat = true;
+                } else {
+                    setBins(); // Backtrack
+                    repeat = false;
+                }
+            } while(repeat);
+        } while(repeat || Math.random() > 0.4);
         this.time.set(System.currentTimeMillis() - start.get());
     }
 
-    // Best fit heuristic
-    private void bestFit() {
-        // Pack the items into bins using the best fit heuristic (i.e., the bin with the least amount of space left)
-        for(Integer i: this.items) {
-            // Search the bins for the bin that will have the least space left if that item is added to it
-            int leastSpaceLeft = this.capacity;
-            int leastSpaceLeftBin = 0;
-            for(int j = 0; j < this.bins.size(); j++) {
-                int space = this.capacity - this.bins.get(j).stream().mapToInt(Integer::intValue).sum();
-                if(space >= i && space < leastSpaceLeft){
-                    leastSpaceLeft = space;
-                    leastSpaceLeftBin = j;
+    protected void bestFitAll(){
+        for(Integer item : this.items){
+            bestFit(item);
+        }
+    }
+    protected void bestFit(Integer item){
+        // 2. Pack items according to best fit heuristic (pack the item in the bin that results in the least space left after packing)
+        int bestBin = -1;
+        int bestSpace = this.capacity;
+        // Get the bin that will have the least space left after packing the item
+        for(ArrayList<Integer> bin : this.bins){
+            int space = this.capacity - bin.stream().mapToInt(Integer::intValue).sum() - item;
+            if(space >= 0 && space < bestSpace){// item can fit & fits better than previous best
+                bestBin = this.bins.indexOf(bin);
+                bestSpace = space;
+            }
+        }
+
+        if(bestBin == -1){ //No bin found
+            //Create new bin
+            ArrayList<Integer> newBin = new ArrayList<>(this.capacity);
+            newBin.add(item);
+            this.bins.add(newBin);
+        } else {
+            //Add item to bin
+            this.bins.get(bestBin).add(item);
+        }
+    }
+    
+    protected int getBin(char picked){
+        switch(picked){
+            case 'L':
+                return leastFilledBin();
+            case 'R':
+                Boolean bias = Math.random() < 0.6; //Bias towards the back half of the bins
+                if(bias){
+                    return (int)(Math.random() * (this.bins.size() / 2)) + (this.bins.size() / 2);
                 }
-            }
-            // If the item can be added to a bin, add it to the bin
-            if (leastSpaceLeft != this.capacity) {
-                this.bins.get(leastSpaceLeftBin).add(i);
-            } else { // If the item cannot be added to a bin, create a new bin and add the item to it
-                ArrayList<Integer> bin = new ArrayList<Integer>();
-                bin.add(i);
-                this.bins.add(bin);
-            }
+                return (int)(Math.random() * this.bins.size());
+            default:
+                return 0;
         }
     }
 
-    // Get the least filled bin
-    // Search the bins for the bin with the fewest items
-    private int getLeastFilledBin() {
+    protected int leastFilledBin(){
         int leastFilledBin = 0;
-        int leastFilledBinSize = this.capacity;
-        for (ArrayList<Integer> bin : this.bins) {
-            int binSize = bin.stream().mapToInt(Integer::intValue).sum();
-            if (binSize < leastFilledBinSize) {
-                leastFilledBinSize = binSize;
-                leastFilledBin = this.bins.indexOf(bin);
+        int leastFilled = sizeOf(leastFilledBin);
+        for(int i = 1; i < this.bins.size(); i++){
+            if(sizeOf(i) < leastFilled){
+                leastFilledBin = i;
+                leastFilled = sizeOf(i);
             }
         }
         return leastFilledBin;
     }
-
-    // Try to empty the least filled bin
-    private void tryEmptyLeastFilledBin(int leastFilledBin) {
-        for (Integer item : this.bins.get(leastFilledBin)) {
-            // Search the bins for the bin that will have the least space left if that item is added to it
-            int leastSpaceLeft = this.capacity;
-            int leastSpaceLeftBin = 0;
-            for(int j = 0; j < this.bins.size(); j++) {
-                // if not the least filled bin
-                if (j != leastFilledBin) {
-                    int space = this.capacity - this.bins.get(j).stream().mapToInt(Integer::intValue).sum();
-                    if(space >= item && space < leastSpaceLeft){
-                        leastSpaceLeft = space;
-                        leastSpaceLeftBin = j;
-                    }
-                }
-            }
-            // If the item can be added to a bin, add it to the bin
-            if (leastSpaceLeft != this.capacity) {
-                this.bins.get(leastSpaceLeftBin).add(item);
-                this.bins.get(leastFilledBin).remove(item);
-            }
-            if (this.bins.get(leastFilledBin).isEmpty()) {
-                break;
-            }
+    protected void tryEmptyBin(int binToEmpty){
+        //copy & remove the bin we are trying to empty
+        ArrayList<Integer> bin = new ArrayList<>(this.bins.get(binToEmpty));
+        this.bins.remove(binToEmpty);
+        for(Integer item : bin){
+            bestFit(item);
         }
     }
-
-    // Shuffle
-    private Boolean shuffle(int leastFilledBin) {
-        // Take the largest piece from the lowest filled bin, and exchange with a smaller piece from a random bin (if possible)
-        // Get the largest item from the least filled bin
-        int largestItem = this.bins.get(leastFilledBin).stream().mapToInt(Integer::intValue).max().getAsInt();
-        // Get a random bin
-        int randomBin = (int) (Math.random() * this.bins.size());
-        int smallestItem = 0;
-        do {
-            randomBin = (int) (Math.random() * this.bins.size());
-            // If the random bin is the least filled bin, get another random bin
-            while (randomBin == leastFilledBin) {
-                randomBin = (int) (Math.random() * this.bins.size());
-            }
-            // Get the smallest item from the random bin
-            smallestItem = this.bins.get(randomBin).stream().mapToInt(Integer::intValue).min().getAsInt();
-
-            // Random chance to not shuffle
-            if(Math.random() < 0.3) {
-                return false;
-            }
-            //Ensure that the largest item is larger than the smallest item
-        } while (smallestItem >= largestItem);
-        
-        // Swap the largest item from the least filled bin with the smallest item from the random bin (if possible)
-        if(this.bins.get(randomBin).stream().mapToInt(Integer::intValue).sum() - smallestItem  + largestItem <= this.capacity) {
-            this.bins.get(leastFilledBin).remove(largestItem);
-            this.bins.get(leastFilledBin).add(smallestItem);
-            this.bins.get(randomBin).remove(smallestItem);
-            this.bins.get(randomBin).add(largestItem);
-            return true;
-        } else if (this.bins.get(randomBin).size() > 1) {
-            // Swap the largest item from the least filled bin with two smaller items from the random bin
-            // Get the second smallest item from the random bin
-            int secondSmallestItem = Integer.MAX_VALUE;
-            for (Integer item : this.bins.get(randomBin)) {
-                if (item < secondSmallestItem && item != smallestItem) {
-                    secondSmallestItem = item;
-                }
-            }
-            // Ensure that the largest item can fit in the random bin after the smallest two items are removed
-            if((secondSmallestItem + smallestItem < largestItem) && this.bins.get(randomBin).stream().mapToInt(Integer::intValue).sum() - smallestItem - secondSmallestItem + largestItem <= this.capacity) {
-                this.bins.get(leastFilledBin).remove(largestItem);
-                this.bins.get(randomBin).remove(smallestItem);
-                this.bins.get(randomBin).remove(secondSmallestItem);
-                this.bins.get(leastFilledBin).add(smallestItem);
-                this.bins.get(leastFilledBin).add(secondSmallestItem);
-                this.bins.get(randomBin).add(largestItem);
-                return true;
-            }
+    protected void trySwap(int pickedBin, int randomBin){
+        // 4. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
+        int randomItem = (int)(Math.random() * this.bins.get(randomBin).size());
+        int pickedItem = (int)(Math.random() * this.bins.get(pickedBin).size());
+        if(pickedItem > randomItem && sizeOf(randomBin) + pickedItem <= this.capacity && sizeOf(pickedBin) + randomItem <= this.capacity){
+            //swap
+            Integer temp = this.bins.get(randomBin).get(randomItem);
+            this.bins.get(randomBin).set(randomItem, this.bins.get(pickedBin).get(pickedItem));
+            this.bins.get(pickedBin).set(pickedItem, temp);
         }
-        return false;
-    }
-
-    // Swap items from two random bins (if possible)
-    private Boolean swap() {
-        // Get two random bins
-        int randomBin1 = (int) (Math.random() * this.bins.size());
-        int randomBin2 = (int) (Math.random() * this.bins.size());
-        // If the random bins are the same, get another random bin
-        while (randomBin1 == randomBin2) {
-            randomBin2 = (int) (Math.random() * this.bins.size());
-        }
-        // Get a random item from each bin
-        int randomItem1 = this.bins.get(randomBin1).get((int) (Math.random() * this.bins.get(randomBin1).size()));
-        int randomItem2 = this.bins.get(randomBin2).get((int) (Math.random() * this.bins.get(randomBin2).size()));
-        
-        // Swap the items if possible
-        if(randomItem1 > randomItem2 && this.bins.get(randomBin2).stream().mapToInt(Integer::intValue).sum() - randomItem2 + randomItem1 <= this.capacity) {
-            this.bins.get(randomBin1).remove(randomItem1);
-            this.bins.get(randomBin2).remove(randomItem2);
-            this.bins.get(randomBin1).add(randomItem2);
-            this.bins.get(randomBin2).add(randomItem1);
-            return true;
-        } else if (randomItem2 > randomItem1 && this.bins.get(randomBin1).stream().mapToInt(Integer::intValue).sum() - randomItem1 + randomItem2 <= this.capacity) {
-            this.bins.get(randomBin1).remove(randomItem1);
-            this.bins.get(randomBin2).remove(randomItem2);
-            this.bins.get(randomBin1).add(randomItem2);
-            this.bins.get(randomBin2).add(randomItem1);
-            return true;
-        }
-        return false;
     }
 }

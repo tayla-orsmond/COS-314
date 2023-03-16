@@ -23,10 +23,9 @@ public class Main {
         Loader loader = new Loader();
         ILS ils = new ILS();
         TabuSearch ts = new TabuSearch();
-
-        // Load the optimal solutions
-        HashMap<String, Integer> optima = loader.loadOptima("Optima.txt");
         try {
+            // Load the optimal solutions
+            HashMap<String, Integer> optima = loader.loadOptima("Optima.txt");
             // Loop through the datasets
             for (String dataset : datasets) {
                 // Load the dataset
