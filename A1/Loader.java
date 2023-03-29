@@ -12,7 +12,7 @@ public class Loader {
     // Hashmap for optimal solutions
     private HashMap<String, Integer> optima = new HashMap<String, Integer>();
     /** 
-        * @brief load all the PIs (files) belonging to a dataset (folder)
+        * Load all the PIs (.txt files) belonging to a dataset (folder)
         * @param dSName the name of the dataset (folder)
         * @return an arraylist of strings containing the names of the PIs (files)
         * @throws IOException
@@ -34,7 +34,7 @@ public class Loader {
         return filenames;
     }
     /** 
-        * @brief load a PI's / Summary data from a file
+        * Load a PI's / Summary data from a file (.txt)
         * @param filename the name of the PI / File
         * @return an arraylist of strings containing the PI / File's data
         * @throws IOException
@@ -58,8 +58,9 @@ public class Loader {
         return data;
     }
     /** 
-        * @brief load the optima from a file
+        * Load the optima from a file (.txt)
         * @param filename the name of the file
+        * @return a hashmap containing the optimal solutions
         * @throws IOException
      */
     public HashMap<String, Integer> loadOptima(String filename) throws IOException {

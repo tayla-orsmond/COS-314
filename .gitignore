@@ -1,6 +1,11 @@
-*.txt
-*.zip
 Completed/
+Source Code/
+*.txt
+#Make exceptions for certain .txt files
+!Manifest.txt
+!Optima.txt
+*.zip
 *.png
 *.class
 *.jar
+*.bat

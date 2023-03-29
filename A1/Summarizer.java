@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Summarizer {
+    // Variables ==================== 
     private ArrayList<String> summaries;
     private Long totalTimeForILS;
     private Long totalTimeForTabu;
     private Integer totalPIsTested;
 
+    // Constructor ====================
     Summarizer() {
         summaries = new ArrayList<String>();
         totalTimeForILS = 0L;
@@ -19,7 +21,13 @@ public class Summarizer {
         totalPIsTested = 0;
     }
 
-    // Summarize the dataset results for each algorithm (ILS & Tabu Search)
+    /**
+     * Summarize the results of the ILS and Tabu Search algorithms
+     * @param dataset The dataset name
+     * @param ITSPath The path to the ILS results summary
+     * @param TabuPath The path to the Tabu Search results summary
+     * @return void
+     */
     public void summarize(String dataset, String ITSPath, String TabuPath) {
         try {
             // Read the results for the ILS algorithm
@@ -46,7 +54,12 @@ public class Summarizer {
         }
     }
 
-    // Calculate the results per dataset for each algorithm (ILS & Tabu Search)
+    /**
+     * Calculate the results per dataset for each algorithm (ILS & Tabu Search)
+     * @param results The results for the algorithm
+     * @param algorithm The algorithm name
+     * @return The summary for the algorithm (String)
+     */
     private String calculateSummary(ArrayList<String> results, String algorithm) {
         Integer totalPIs = 0;
         Integer totalOptimal = 0;
@@ -86,7 +99,11 @@ public class Summarizer {
         return "\n\t" + algorithm + " [Optimal: " + totalOptimal + " NearOptimal: " + totalNearOptimal + " SubOptimal: " + totalSubOptimal + " Total: " + totalPIs + " AvgTime: " + avgTime + "ms]";
     }
 
-    // Write the results to a file
+    /**
+     * Write the results to a file
+     * @param path The path to the file
+     * @return void
+     */
     public void writeSummary(String path) {
         // Write the summaries to the file
         try {
@@ -116,7 +133,10 @@ public class Summarizer {
         }
     }
 
-    // Print the results to the console
+    /**
+     * Print the results to the console
+     * @return void
+     */
     public void printSummary() {
         // Print the total time for the ILS algorithm
         System.out.println("Total Time for ILS: " + totalTimeForILS + "ms");

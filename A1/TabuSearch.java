@@ -1,25 +1,5 @@
 // Tayla Orsmond u21467456
 // Tabu Search class to solve the bin packing problem
-// TS Pseudocode:
-// Set x = x0 //Initial candidate solution
-// Set length(L) = z; //Maximum tabu list length
-// Set L = {}; //Initialise tabu list
-
-// repeat
-// 	Generate a random neighbor x',
-// 		if x' [not in set] L then
-// 			if length(L) > z then
-// 				Remove oldest solution from L //FIFO queue
-// 				Set x' [to be in set] L
-// 			end if
-// 		end if
-		
-// 		if x' < x then
-// 			x = x',
-// 		end if
-// until (stopping criteria satisfied)
-
-// return x
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,19 +29,27 @@ public class TabuSearch extends Solver {
     //      - Record initial solution
     //      - Set Tabu List length
     // 3. *Search for the least filled bin & attempt to empty it by taking those items and repacking them in other bins
-    // 4. *Search for the least filled bin & attempt to swap an item from that bin with an item from a random bin
-    //      (swap if possible and if the random bin is better filled i.e., leastfilledItem > randomItem)
-    //      - If not possible swap with two items from the random bin (if possible and if the random bin is better filled)
-    // 5. *Pick a random bin and attempt to empty it by taking those items and repacking them in other bins
+    //      - Repeat as long as a bin can be emptied
+    //      - Record better solutions
+    // 4. *Pick a random bin and attempt to empty it by taking those items and repacking them in other bins
     //      - This can be biased towards the back half of the bins since the data is ordered
     //      - Otherwise pick a random bin
-    //      - *Can pick x random bins
-    // 6. *Pick a random bin and swap it with an item from another random bin if the second random bin is better filled
-    // * Choose & Repeat as long as something happens or until a random no. threshold
+    // 5. *Search for the least filled bin & attempt to swap an item from that bin with an item from a random bin
+    //      (swap if possible and if the random bin is better filled i.e., leastfilledItem > randomItem)
+    //      - Repeat as long as a swap can be made
+    // 6. *Pick a random bin and attempt to swap an item from that bin with an item from a random bin
+    //      (swap if possible and if the second random bin is better filled)
+    // * Choose & Repeat as long as something happens or until a random no. threshold is reached
     // Update TL if solution not in there
-    // * Update solution if better (something happens) or if a random no. threshold
-    // Record final solution 
-    // Record time. 
+    // * Update solution if better (something happens) or if a random no. threshold is reached
+    // Record final solution
+    // Record time.
+
+    /**
+     * Solve the bin packing problem using the Tabu Search algorithm
+     * @details Algorithm found in the report or in the comments above 
+     * @return void
+     */
     public void solve() {
         AtomicLong start = new AtomicLong(System.currentTimeMillis());
         // 1.
@@ -72,15 +60,17 @@ public class TabuSearch extends Solver {
         this.best = this.bins.size(); //Initial best no. of bins
         // 3.-6.
         Boolean repeat = false;
+        Boolean repeatOverall = false;
         do{
+            repeatOverall = false;
             //Choose whether to pick a random bin or the least filled bin
             char picked;
-            if(Math.random() < 0.6){
+            if(Math.random() > 0.4){
                 picked = 'L'; //least-filled bin
             } else {
                 picked = 'R'; //random bin
             }
-            // 3. & 5. Attempt to empty the bin
+            // 3. & 4. Attempt to empty the bin
             int pickedBin;
             do {
                 pickedBin = getBin(picked);
@@ -103,6 +93,7 @@ public class TabuSearch extends Solver {
                         setBestBins();
                         this.best = this.bins.size(); //New no.of bins
                         repeat = true;
+                        repeatOverall = true;
                     } else {
                         repeat = false;
                     }
@@ -113,7 +104,7 @@ public class TabuSearch extends Solver {
                 }
             } while(repeat);
 
-            // 4. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
+            // 5. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
             do {
                 pickedBin = getBin(picked);
                 int PBSize = sizeOf(pickedBin);
@@ -142,6 +133,7 @@ public class TabuSearch extends Solver {
                         setBestBins();
                         this.best = this.bins.size(); //New no.of bins
                         repeat = true;
+                        repeatOverall = true;
                     } else {
                         repeat = false;
                     }
@@ -151,10 +143,14 @@ public class TabuSearch extends Solver {
                     }
                 }
             } while(repeat);
-        } while(repeat || Math.random() > 0.4);
+        } while(repeatOverall || Math.random() > 0.1);
         this.time.set(System.currentTimeMillis() - start.get());
     }
 
+    /**
+     * Check if the current configuration of bins are in the tabu list
+     * @return Boolean true if the current configuration is in the tabu list, false otherwise
+     */
     private Boolean isTabu(){
         for(ArrayList<ArrayList<Integer>> tabu : this.tabuList){
             if(compare(tabu, this.bins)){
@@ -164,6 +160,13 @@ public class TabuSearch extends Solver {
         return false;
     }
 
+    /**
+     * Compare two bins (ArrayLists of ArrayLists of Integers)
+     * @details Compare two bins to see if they are the same length and contain the same items in the same order
+     * @param a the first bin
+     * @param b the second bin
+     * @return Boolean true if the bins are the same, false otherwise
+     */
     private Boolean compare(ArrayList<ArrayList<Integer>> a, ArrayList<ArrayList<Integer>> b){
         if(a.size() != b.size()){
             return false;

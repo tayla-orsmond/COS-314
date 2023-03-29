@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Solver {
-    // Variables
+    // Variables ====================
     protected int capacity; // The capacity of the bins
     protected String pi; // The name of the PI
     protected ArrayList<Integer> items; // The data of the PI
@@ -20,9 +20,9 @@ public abstract class Solver {
     protected ArrayList<ArrayList<Integer>> bestBins; // The best solution found (bins)
     protected AtomicLong time; // The time taken to solve the PI
     protected ArrayList<ArrayList<Integer>> bins; // The bins used to solve the PI
-    protected ArrayList<String> existingSummaries;
+    protected ArrayList<String> existingSummaries; // The summaries of the PIs that have been solved
 
-    // Constructor
+    // Constructor ====================
     public Solver() {
         this.capacity = 0;
         this.best = Integer.MAX_VALUE;
@@ -34,7 +34,7 @@ public abstract class Solver {
         this.existingSummaries = new ArrayList<String>();
     }
 
-    // Setters
+    // Setters ==================== 
     public void setPI(String pi) {
         this.pi = pi;
     }
@@ -83,12 +83,21 @@ public abstract class Solver {
         return bins;
     }
 
-    // Helpers
-    // Get the size of the bin (combined weight of items in the bin)
+    // Helpers ====================
+    /**
+     * Get the size of a bin (i.e, the sum of the items in the bin)
+     * @param bin The bin to get the size of
+     * @return The size of the bin (Integer)
+     */
     public Integer sizeOf(int bin){
         return this.bins.get(bin).stream().mapToInt(Integer::intValue).sum();
     }
-    // Make a deep copy of the bins to put in bestBins
+    
+    /**
+     * Make a deep copy of the bins to put in bestBins
+     * @details This is used to make sure that the bestBins are not changed when the bins are changed
+     * @return void
+     */
     public void setBestBins() {
         this.bestBins.clear();
         for (ArrayList<Integer> bin : this.bins) {
@@ -99,7 +108,12 @@ public abstract class Solver {
             this.bestBins.add(newBin);
         }
     }
-    // Make a deep copy of the bestBins to put in bins
+    
+    /**
+     * Make a deep copy of the bestBins to put in bins
+     * @details This is used to backtrack to the bestBins (i.e., previous best solution)
+     * @return void
+     */
     public void setBins() {
         this.bins.clear();
         for (ArrayList<Integer> bin : this.bestBins) {
@@ -111,11 +125,23 @@ public abstract class Solver {
         }
     }
 
+    /**
+     * Best fit all items
+     * @details This is used to pack all items from the PI into bins using the best fit heuristic
+     * @return void
+     */
     protected void bestFitAll(){
         for(Integer item : this.items){
             bestFit(item);
         }
     }
+
+    /**
+     * Best fit heuristic
+     * @details This is used to pack an item into a bin using the best fit heuristic
+     * @param item The item to pack
+     * @return void
+     */
     protected void bestFit(Integer item){
         // 2. Pack items according to best fit heuristic (pack the item in the bin that results in the least space left after packing)
         int bestBin = -1;
@@ -140,6 +166,12 @@ public abstract class Solver {
         }
     }
     
+    /**
+     * Select a bin to work on based on the picked bin selection heuristic
+     * @details This is used to select a bin to work on (a random bin or the least filled bin)
+     * @param picked The bin selection heuristic to use
+     * @return The bin index to work on (Integer)
+     */
     protected int getBin(char picked){
         switch(picked){
             case 'L':
@@ -155,6 +187,11 @@ public abstract class Solver {
         }
     }
 
+    /**
+     * Get the least filled bin
+     * @details This is used to get the bin with the least amount of items in it
+     * @return The bin index of the least filled bin (Integer)
+     */
     protected int leastFilledBin(){
         int leastFilledBin = 0;
         int leastFilled = sizeOf(leastFilledBin);
@@ -166,6 +203,13 @@ public abstract class Solver {
         }
         return leastFilledBin;
     }
+
+    /**
+     * Try to empty a bin
+     * @details This is used to try to empty a bin by packing all items in the bin into other bins
+     * @param binToEmpty The bin to empty (int)
+     * @return void
+     */
     protected void tryEmptyBin(int binToEmpty){
         //copy & remove the bin we are trying to empty
         ArrayList<Integer> bin = new ArrayList<>(this.bins.get(binToEmpty));
@@ -174,6 +218,14 @@ public abstract class Solver {
             bestFit(item);
         }
     }
+
+    /**
+     * Try to swap an item from a bin with an item from a random bin
+     * @details This is used to try to swap an item from a bin with an item from a random bin
+     * @param pickedBin The bin to swap an item from (int)
+     * @param randomBin The bin to swap an item from (int)
+     * @return void
+     */
     protected void trySwap(int pickedBin, int randomBin){
         // 4. & 6. Attempt to swap an item from the bin with an item from a random bin (if possible)
         int randomItem = (int)(Math.random() * this.bins.get(randomBin).size());
@@ -186,7 +238,11 @@ public abstract class Solver {
         }
     }
 
-    // Write the results to a file for this PI
+    /**
+     * Write the results of this PI to a file and add a summary of them to the existing summaries 
+     * @param path The path to the file to write to
+     * @return void
+     */
     public void writeResults(String path) {
         try {
             // Create a new file
@@ -233,7 +289,11 @@ public abstract class Solver {
         }
     }
 
-    // Write the summary (add the summary) to the summary file for that dataset
+    /**
+     * Write the summary of all PI's to a file using the existing summaries
+     * @param path The path to the file to write to
+     * @return void
+     */
     public void writeSummary(String path) {
         try {
             // Create a new file
