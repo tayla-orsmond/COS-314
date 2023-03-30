@@ -24,7 +24,7 @@ If the .bat file doesn't run, consider executing the .jar file directly by typin
 
 If the .jar file won't execute, you can compile and run the source code directly:
 
-1. Navigate to the "Source Code" folder.
+1. Open a terminal in this folder.
 2. Type the following in the console:  
     ```javac *.java```  
     ```java Main```
