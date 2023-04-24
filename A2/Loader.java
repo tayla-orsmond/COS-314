@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class Loader {
     // Hashmap for optimal solutions
-    private HashMap<String, Integer> optima = new HashMap<String, Integer>();
+    private HashMap<String, Double> optima = new HashMap<>();
     /** 
         * Load all the PIs (.txt files) belonging to a dataset (folder)
         * @param dSName the name of the dataset (folder)
@@ -26,8 +26,10 @@ public class Loader {
         for (File f : dataset.listFiles()) {
             // Check if the file is a text file
             if (f.getName().endsWith(".txt")) {
+                // Remove the .txt extension
+                String name = f.getName().substring(0, f.getName().length() - 4);
                 // Add the file to the array list
-                filenames.add(f.getName());
+                filenames.add(name);
             }
         }
         // Return the array
@@ -41,7 +43,7 @@ public class Loader {
      */
     public ArrayList<String> readFile(String filename) throws IOException {
         // Create a new file object
-        File file = new File(filename);
+        File file = new File(filename + ".txt");
         // Create a new scanner object
         Scanner scanner = new Scanner(file);
         // Create a new array list
@@ -63,7 +65,7 @@ public class Loader {
         * @return a hashmap containing the optimal solutions
         * @throws IOException
      */
-    public HashMap<String, Integer> loadOptima(String filename) throws IOException {
+    public HashMap<String, Double> loadOptima(String filename) throws IOException {
         // Create a new file object
         File file = new File(filename);
         // Create a new scanner object
@@ -73,7 +75,7 @@ public class Loader {
             // Split the line into an array
             String[] line = scanner.nextLine().split(" ");
             // Add the data to the hashmap
-            optima.put(line[0], Integer.parseInt(line[1]));
+            optima.put(line[0], Double.parseDouble(line[1]));
         }
         // Close the scanner
         scanner.close();
