@@ -39,6 +39,7 @@ public class Main {
             }
         } catch (Exception e) {
             System.out.println("[GA] Error: " + e);
+            e.printStackTrace();
         }
 
         ga.summarize("Solutions/GA/GA_Summary.txt", "GA");

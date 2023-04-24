@@ -25,8 +25,8 @@ public class GA extends Solver{
     private ArrayList<Double> fitnesses;
     private final Double crossoverRate;
     private final Double mutationRate;
-    private final int populationSize;
-    private final int numGenerations;
+    private int populationSize;
+    private int numGenerations;
     private final int numElite;
     private final int numTournament;
 
@@ -35,19 +35,25 @@ public class GA extends Solver{
         super();
         this.population = new ArrayList<>();
         this.fitnesses = new ArrayList<>();
-        this.crossoverRate = 0.8;
-        this.mutationRate = 0.1;
-        this.populationSize = 100;
-        this.numGenerations = 100;
-        this.numElite = 2;
-        this.numTournament = 5;
+        this.crossoverRate = 0.7;
+        this.mutationRate = 0.3;
+        this.populationSize = items.size(); // number of items
+        this.numGenerations = 10 * items.size();
+        this.numElite = 1;
+        this.numTournament = 2;
     }
-
+    
     // Helpers
     public void clear(){
         super.clear();
         this.population.clear();
         this.fitnesses.clear();
+    }
+
+    public void setItems(ArrayList<String> data) {
+        super.setItems(data);
+        this.populationSize = items.size(); // number of items
+        this.numGenerations = 10 * items.size();
     }
 
     // Create population of random individuals
@@ -65,12 +71,6 @@ public class GA extends Solver{
         for (Boolean[] individual : this.population) {
             fitness = calculateFitness(individual);
             this.fitnesses.add(fitness);
-
-            // Set the best fitness and solution
-            if(fitness > this.bestFitness){
-                this.bestFitness = fitness;
-                this.bestSolution = individual;
-            }
         }     
     }
 
@@ -80,8 +80,7 @@ public class GA extends Solver{
         for (Boolean[] individual : population) {
             totalFitness += calculateFitness(individual);
         }
-        Double averageFitness = totalFitness / population.size();
-        return averageFitness;
+        return totalFitness / population.size();
     }
 
     // Select parent for reproduction
@@ -163,14 +162,12 @@ public class GA extends Solver{
                 //find the best individual
                 int bestIndex = 0;
                 for (int k = 0; k < this.fitnesses.size(); k++) {
-                    if (this.fitnesses.get(k) > this.fitnesses.get(bestIndex)) {
+                    if (this.fitnesses.get(k) > this.fitnesses.get(bestIndex) && !newPopulation.contains(this.population.get(k))) {
                         bestIndex = k;
                     }
                 }
                 //add the best individual to the new population
                 newPopulation.add(this.population.get(bestIndex));
-                //remove the best individual from the population
-                this.population.remove(bestIndex);
             }
 
             // Generate children for new population
@@ -179,8 +176,8 @@ public class GA extends Solver{
                 Boolean[] parent1 = selectParent();
                 Boolean[] parent2 = selectParent();
 
-                Boolean[] child = new Boolean[this.numItems];
-                Boolean[] child2 = new Boolean[this.numItems];
+                Boolean[] child;
+                Boolean[] child2;
 
                 // Crossover parents
                 if (Math.random() < this.crossoverRate) {
@@ -217,10 +214,6 @@ public class GA extends Solver{
 
         // Stop timer
         this.time.set(System.currentTimeMillis() - this.time.get());
-
-        // Return best individual
-        this.bestFitness = this.fitnesses.get(0);
-        this.bestSolution = this.population.get(0);
     }  
 
 }

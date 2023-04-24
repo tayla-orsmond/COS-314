@@ -4,7 +4,6 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,9 +43,8 @@ public class Solver {
         //First line is item count and capacity respectively
         this.numItems = Integer.parseInt(data.get(0).split(" ")[0]);
         this.capacity = Integer.parseInt(data.get(0).split(" ")[1]);
-        data.remove(0);
         //Loop through the rest of the data and add the items to the arraylist (value, weight)
-        for (int i = 2; i < data.size(); i++) {
+        for (int i = 1; i < data.size(); i++) {
             String[] itemData = data.get(i).split(" ");
             this.items.add(new Item(Double.parseDouble(itemData[0]), Double.parseDouble(itemData[1])));
         }
@@ -107,10 +105,14 @@ public class Solver {
         if (weight > capacity) {
             fitness = 0.0;
         }
+
+        //round off fitness to 4 decimal places
+        fitness = Math.round(fitness * 10000.0) / 10000.0;
+
         //Check if the individual is the best
         if (fitness > bestFitness) {
-            bestFitness = fitness;
-            bestSolution = individual;
+            this.bestFitness = fitness;
+            this.bestSolution = individual;
         }
         return fitness;
     }
@@ -128,19 +130,23 @@ public class Solver {
     public void writeResults(String path) {
         String res = "";
         String summary = "";
-
+        String print = "";
         res += "Instance: " + this.instanceName;
         summary += "\n" + this.instanceName + ":";
+        print += "\n\u001b[34m" + this.instanceName + "\u001b[0m:";
 
         res += "\nBest Fitness: " + this.bestFitness + " / Optimal: " + this.optimalFitness;
         summary += this.bestFitness + ":" + this.optimalFitness + ":";
+        print += this.bestFitness + ":" + this.optimalFitness + ":";
 
-        if(this.bestFitness == this.optimalFitness){
+        if(this.bestFitness.compareTo(this.optimalFitness) == 0){
             res += " (Optimal)";
             summary += "Optimal";
+            print += "\u001b[32mOptimal\u001b[0m";
         } else {
             res += " (Not Optimal)";
             summary += "Not Optimal";
+            print += "\u001b[31mNot Optimal\u001b[0m";
         }
 
         res += "\nBest Solution: " + Arrays.toString(this.bestSolution);
@@ -154,12 +160,13 @@ public class Solver {
 
         res += "\nTime: " + this.time + "ms";
         summary += ":" + this.time + "ms";
+        print += ":" + this.time + "ms";
 
 
         // Add the summary to the arraylist
         this.summaries.add(summary);
         // Print to console
-        System.out.println(summary + " Full version available in file: " + path);
+        System.out.println(print + " \n\tFull version available in file: " + path);
 
         // Write to file
         try {
@@ -190,12 +197,12 @@ public class Solver {
 
         res += "\nAlgorithm: " + algorithm;
         res += "\nInstance : Best Fitness : Optimal Fitness : Optimal? : Time";
-        res += "--------------------------------------------------------------";
+        res += "\n--------------------------------------------------------------";
 
         for(String summary : this.summaries){
             res += summary;
             String[] splitSummary = summary.split(":");
-            if(splitSummary[3].equals("Optimal")){
+            if(splitSummary[3].compareTo("Optimal") == 0){
                 totalOptimal++;
             }
             totalTime += Long.parseLong(splitSummary[4].replace("ms", ""));
@@ -204,7 +211,7 @@ public class Solver {
         res += "\n--------------------------------------------------------------";
         res += "\nTotal Instances: " + this.summaries.size();
         res += "\nTotal Optimal: " + totalOptimal + " / " + this.summaries.size();
-        res += "\n % Optimal: " + (totalOptimal / this.summaries.size()) * 100 + "%";
+        res += "\n% Optimal: " + ((double) totalOptimal / this.summaries.size()) * 100 + "%";
         res += "\nTotal Time: " + totalTime + "ms";
         res += "\nAverage Time: " + totalTime / this.summaries.size() + "ms";
 

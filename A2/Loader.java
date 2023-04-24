@@ -43,7 +43,7 @@ public class Loader {
      */
     public ArrayList<String> readFile(String filename) throws IOException {
         // Create a new file object
-        File file = new File(filename + ".txt");
+        File file = new File(filename);
         // Create a new scanner object
         Scanner scanner = new Scanner(file);
         // Create a new array list
