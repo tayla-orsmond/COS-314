@@ -91,28 +91,27 @@ public class Solver {
         this.time.set(0);
     }
 
-    protected Double calculateFitness(Boolean[] individual) {
-        //Calculate the fitness of the individual
+    protected Double calculateFitness(Boolean[] solution) {
+        //Calculate the fitness of the solution
         Double fitness = 0.0;
         Double weight = 0.0;
-        for (int i = 0; i < individual.length; i++) {
-            if (individual[i]) {
+        for (int i = 0; i < solution.length; i++) {
+            if (solution[i]) {
                 fitness += items.get(i).getValue();
                 weight += items.get(i).getWeight();
             }
         }
-        //Check if the individual is valid
+        //Check if the solution is valid
         if (weight > capacity) {
             fitness = 0.0;
         }
 
         //round off fitness to 4 decimal places
         fitness = Math.round(fitness * 10000.0) / 10000.0;
-
-        //Check if the individual is the best
+        //Check if the solution is the best
         if (fitness > bestFitness) {
             this.bestFitness = fitness;
-            this.bestSolution = individual;
+            this.bestSolution = solution;
         }
         return fitness;
     }

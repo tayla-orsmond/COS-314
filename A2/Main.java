@@ -7,7 +7,7 @@ public class Main {
         System.out.println("========== COS 314 - Assignment 2 - Knapsack Problem ==========");
         Loader loader = new Loader();
         System.out.println("========== Running GA... ==========");
-        runGA(loader);
+        //runGA(loader);
         System.out.println("========== Running ACO... ==========");
         runACO(loader);
         
@@ -46,25 +46,26 @@ public class Main {
     }
 
     public static void runACO(Loader loader){
-        // ACO aco = new ACO();
-        // try{
-        //     HashMap<String, Double> optima = loader.loadOptima("Optima.txt");
-        //     ArrayList<String> instances = loader.loadDataset(dataset);
-        //     for (String instance : instances) {
-        //         ArrayList<String> data = loader.readFile(dataset + "/" + instance + ".txt");
-        //         aco.clear();
-        //         aco.setInstanceName(instance);
-        //         aco.setOptimal(optima.get(instance));
-        //         aco.setItems(data);
+        ACO aco = new ACO();
+        try{
+            HashMap<String, Double> optima = loader.loadOptima("Optima.txt");
+            ArrayList<String> instances = loader.loadDataset(dataset);
+            for (String instance : instances) {
+                ArrayList<String> data = loader.readFile(dataset + "/" + instance + ".txt");
+                aco.clear();
+                aco.setInstanceName(instance);
+                aco.setOptimal(optima.get(instance));
+                aco.setItems(data);
 
-        //         aco.solve();
-        //         aco.writeResults("Solutions/ACO/" + instance + "_SOL.txt");
-        //     }
-        // } catch (Exception e) {
-        //     System.out.println("[ACO] Error: " + e);
-        // }
+                aco.solve();
+                aco.writeResults("Solutions/ACO/" + instance + "_SOL.txt");
+            }
+        } catch (Exception e) {
+            System.out.println("[ACO] Error: " + e);
+            e.printStackTrace();
+        }
 
-        // aco.summarize("Solutions/ACO/ACO_Summary.txt", "ACO");
+        aco.summarize("Solutions/ACO/ACO_Summary.txt", "ACO");
     }
 
 }

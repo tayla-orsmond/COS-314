@@ -28,7 +28,7 @@ public class GA extends Solver{
     private int populationSize;
     private int numGenerations;
     private final int numElite;
-    private final int numTournament;
+    private final int tournamentSize;
 
     // Constructors
     public GA() {
@@ -40,7 +40,7 @@ public class GA extends Solver{
         this.populationSize = items.size(); // number of items
         this.numGenerations = 10 * items.size();
         this.numElite = 1;
-        this.numTournament = 2;
+        this.tournamentSize = 2;
     }
     
     // Helpers
@@ -89,7 +89,7 @@ public class GA extends Solver{
         // Create tournament
         ArrayList<Boolean[]> tournament = new ArrayList<>();
         ArrayList<Double> tournamentFitnesses = new ArrayList<>();
-        for (int i = 0; i < this.numTournament; i++) {
+        for (int i = 0; i < this.tournamentSize; i++) {
             int randomIndex = (int) (Math.random() * this.population.size());
             tournament.add(this.population.get(randomIndex));
             tournamentFitnesses.add(this.fitnesses.get(randomIndex));
