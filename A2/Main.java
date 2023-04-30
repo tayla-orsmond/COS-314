@@ -7,7 +7,7 @@ public class Main {
         System.out.println("========== COS 314 - Assignment 2 - Knapsack Problem ==========");
         Loader loader = new Loader();
         System.out.println("========== Running GA... ==========");
-        //runGA(loader);
+        runGA(loader);
         System.out.println("========== Running ACO... ==========");
         runACO(loader);
         

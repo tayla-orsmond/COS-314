@@ -37,8 +37,6 @@ public class GA extends Solver{
         this.fitnesses = new ArrayList<>();
         this.crossoverRate = 0.7;
         this.mutationRate = 0.3;
-        this.populationSize = items.size(); // number of items
-        this.numGenerations = 10 * items.size();
         this.numElite = 1;
         this.tournamentSize = 2;
     }

@@ -109,7 +109,7 @@ public class Solver {
         //round off fitness to 4 decimal places
         fitness = Math.round(fitness * 10000.0) / 10000.0;
         //Check if the solution is the best
-        if (fitness > bestFitness) {
+        if (fitness > bestFitness || bestFitness == 0.0) {
             this.bestFitness = fitness;
             this.bestSolution = solution;
         }
