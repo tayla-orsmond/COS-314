@@ -18,8 +18,8 @@ public class GA extends Solver {
         super();
         this.population = new ArrayList<>();
         this.fitnesses = new ArrayList<>();
-        this.crossoverRate = 0.7;
-        this.mutationRate = 0.3;
+        this.crossoverRate = 0.8; //start at 0.7, 0.8 = mixed but generally good, 0.9 = ~ 8 optimal,0.6 = ~ 8-9 optimal
+        this.mutationRate = 0.6; //start 0.3, 0.4 & 0.5 = ~ 7-8 optimal, 0.6-0.9 = ~7-9 opt
         this.numElite = 1;
         this.tournamentSize = 2;
     }
@@ -33,7 +33,7 @@ public class GA extends Solver {
 
     public void setItems(ArrayList<String> data) {
         super.setItems(data);
-        this.populationSize = items.size();
+        this.populationSize = items.size() * 3; // * 2 & 3 ~ 9 opts, 4 = consistently 9 and closer to optimal *5 = no difference just longer
         this.numGenerations = 10 * items.size();
     }
 
