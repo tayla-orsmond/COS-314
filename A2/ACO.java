@@ -1,26 +1,13 @@
-
 // Tayla Orsmond u21467456
 // Ant Colony Optimisation class to solve instances of the knapsack problem using an ant colony optimisation algorithm
-/**
- * ACO pseudocode
- * Initialize pheromone trails and parameters
-    while stopping criteria not met do {
-        for each ant do {
-            Construct a solution using pheromone trails and heuristic information
-            Evaluate the solution
-            Update the pheromone trails based on the quality of the solution
-        } //end for
-        Update the pheromone trails globally
-    } // end while
-    Return the best solution found
- */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 public class ACO extends Solver {
-    private final int numAnts;
-    private final int numIterations;
+    private final int numAnts; // number of ants
+    private final int numIterations; // max no.of iterations
     private final Double alpha; // pheromone weight (1 > alpha > 0)
     private final Double beta; // heuristic weight (1 > beta > 0)
     private final Double rho; // pheromone evaporation rate (1 > rho > 0)
@@ -36,11 +23,11 @@ public class ACO extends Solver {
     // Constructor
     public ACO(){
         super();
-        this.numAnts = 100;
+        this.numAnts = 60;
         this.numIterations = 200;
-        this.alpha = 0.4;
+        this.alpha = 0.1;
         this.beta = 0.5;
-        this.rho = 0.5;
+        this.rho = 0.95;
         this.tau0 = 0.1;
         this.tauMax = 1.0;
         this.tauMin = 0.1;

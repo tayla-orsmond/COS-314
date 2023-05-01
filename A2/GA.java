@@ -1,26 +1,9 @@
 //Tayla Orsmond u21467456
 //Genetic Algorithm class to solve instances of the knapsack problem using a genetic algorithm
-/* Basic GA pseudocode
-    Create initial population // randomly create individuals
-    Calculate fitness of all individuals 
-    while termination condition not met do {
-        Select fitter individuals for reproduction
-        Recombine individuals 
-            // Crossover = crossover rate / probability (do we apply crossover (yes/no))
-        Mutate individuals 
-            // Mutation types / methods - must mutate offspring (different from others)
-            // Probability tells you if you do / don't but generally you do
-            // Genrally lower than crossover otherwise we get just randomness 
-        Evaluate fitness of all individuals
-        Generate a new population 
-            // Steady-state (slow) - replace individuals 
-            // OR complete overhaul of population (faster)
-    } end while
-    return best individual
-*/
+
 import java.util.ArrayList;
 
-public class GA extends Solver{
+public class GA extends Solver {
     private ArrayList<Boolean[]> population;
     private ArrayList<Double> fitnesses;
     private final Double crossoverRate;
@@ -50,7 +33,7 @@ public class GA extends Solver{
 
     public void setItems(ArrayList<String> data) {
         super.setItems(data);
-        this.populationSize = items.size(); // number of items
+        this.populationSize = items.size();
         this.numGenerations = 10 * items.size();
     }
 

@@ -1,6 +1,6 @@
-
 //Tayla Orsmond u21467456
 //Parent Solver class to solve instances of the knapsack problem
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
