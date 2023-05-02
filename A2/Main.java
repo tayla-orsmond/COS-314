@@ -8,8 +8,8 @@ public class Main {
         Loader loader = new Loader();
         System.out.println("========== Running GA... ==========");
         runGA(loader);
-        //System.out.println("========== Running ACO... ==========");
-        //runACO(loader);
+        System.out.println("========== Running ACO... ==========");
+        runACO(loader);
         
         System.out.println("The results for every instance have been written to the Solutions folder, as well as a summary for each dataset.");
         

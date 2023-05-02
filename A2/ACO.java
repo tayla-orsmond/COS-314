@@ -23,10 +23,10 @@ public class ACO extends Solver {
     // Constructor
     public ACO(){
         super();
-        this.numAnts = 60;
-        this.numIterations = 200;
+        this.numAnts = 5;
+        this.numIterations = 60;
         this.alpha = 0.1;
-        this.beta = 0.5;
+        this.beta = 2.0;
         this.rho = 0.95;
         this.tau0 = 0.1;
         this.tauMax = 1.0;
@@ -39,6 +39,7 @@ public class ACO extends Solver {
         this.pheromones = null;
         this.heuristics = null;
         this.solutions = null;
+        this.fitnesses = null;
     }
 
     public void setItems(ArrayList<String> data){
@@ -103,7 +104,7 @@ public class ACO extends Solver {
             Double cumulative = 0.0;
             for (int j = 0; j < this.numItems; j++){
                 cumulative += probabilities[j];
-                if (rand < cumulative){
+                if (rand <= cumulative){
                     this.solutions[ant][j] = true;
                     break;
                 }
@@ -125,7 +126,13 @@ public class ACO extends Solver {
             if (this.solutions[ant][i]){
                 this.pheromones[i] = (1 - this.rho) * this.pheromones[i] + this.fitnesses[ant];
             } else {
-                this.pheromones[i] = (1 - this.rho) * this.pheromones[i] + this.fitnesses[ant] / 5;
+                this.pheromones[i] = (1 - this.rho) * this.pheromones[i];
+            }
+            // Make sure pheromones are within bounds
+            if (this.pheromones[i] > this.tauMax){
+                this.pheromones[i] = this.tauMax;
+            } else if (this.pheromones[i] < this.tauMin){
+                this.pheromones[i] = this.tauMin;
             }
         }
     }
@@ -144,7 +151,7 @@ public class ACO extends Solver {
             if (this.solutions[best][i]){
                 this.pheromones[i] = (1 - this.rho) * this.pheromones[i] + this.fitnesses[best];
             } else {
-                this.pheromones[i] = (1 - this.rho) * this.pheromones[i] + this.fitnesses[best] / 5;
+                this.pheromones[i] = (1 - this.rho) * this.pheromones[i];
             }
             // Make sure pheromones are within bounds
             if (this.pheromones[i] < this.tauMin){
@@ -172,18 +179,6 @@ public class ACO extends Solver {
             }
             this.updatePheromones();
         }
-
-        // Find best solution
-        int best = 0;
-        for (int i = 0; i < this.numAnts; i++){
-            if (this.fitnesses[i] > this.fitnesses[best]){
-                best = i;
-            }
-        }
-
-        // Set solution
-        this.bestSolution = this.solutions[best];
-        this.bestFitness = this.fitnesses[best];
 
         // Stop timer
         this.time.set(System.currentTimeMillis() - this.time.get());
