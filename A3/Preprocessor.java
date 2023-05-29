@@ -26,9 +26,9 @@ import java.util.Random;
 
 public class Preprocessor {
   ArrayList<String> data; // The data to be processed
-  ArrayList<Double[]> encodedData; // The encoded data
-  ArrayList<Double[]> trainingSet; // The encoded training set
-  ArrayList<Double[]> testSet; // The encoded test set
+  ArrayList<double[]> encodedData; // The encoded data
+  ArrayList<double[]> trainingSet; // The encoded training set
+  ArrayList<double[]> testingSet; // The encoded test set
 
   /**
    * Constructor for the preprocessor
@@ -36,22 +36,22 @@ public class Preprocessor {
    */
   public Preprocessor(ArrayList<String> data) {
     this.data = data;
-    encodedData = new ArrayList<Double[]>();
-    trainingSet = new ArrayList<Double[]>();
-    testSet = new ArrayList<Double[]>();
+    encodedData = new ArrayList<double[]>();
+    trainingSet = new ArrayList<double[]>();
+    testingSet = new ArrayList<double[]>();
   }
 
   // Getters
-  public ArrayList<Double[]> getEncodedData() {
+  public ArrayList<double[]> getEncodedData() {
     return encodedData;
   }
 
-  public ArrayList<Double[]> getTrainingSet() {
+  public ArrayList<double[]> getTrainingSet() {
     return trainingSet;
   }
 
-  public ArrayList<Double[]> getTestSet() {
-    return testSet;
+  public ArrayList<double[]> getTestingSet() {
+    return testingSet;
   }
 
   /**
@@ -66,14 +66,14 @@ public class Preprocessor {
       // Get a random index 
       int randomIndex = rng.nextInt(encodedData.size());
       // Get the data at the random index
-      Double[] randomData = encodedData.get(randomIndex);
+      double[] randomData = encodedData.get(randomIndex);
       // If the training set is not full
       if (trainingSet.size() < trainingSetSize) {
         // Add the data to the training set
         trainingSet.add(randomData);
       } else {
         // Add the data to the test set
-        testSet.add(randomData);
+        testingSet.add(randomData);
       }
     }
   }
@@ -90,7 +90,7 @@ public class Preprocessor {
       // Split the data into an array
       String[] dataLineArray = dataLine.split(",");
       // Create a new array to store the encoded data
-      Double[] encodedDataLine = new Double[52];
+      double[] encodedDataLine = new double[52];
       // Encode each attribute
       // Encode the class
       switch(dataLineArray[0]) {
@@ -102,11 +102,11 @@ public class Preprocessor {
           break;
       }
       // Encode the age
-      for(int j = 0; j < 9; j++){
+      for(int j = 1; j < 10; j++){
         if(dataLineArray[1].compareTo(j + "0-" + j + "9") == 0){
-          encodedDataLine[j + 1] = 1.0;
+          encodedDataLine[j] = 1.0;
         } else {
-          encodedDataLine[j + 1] = 0.0;
+          encodedDataLine[j] = 0.0;
         }
       }
       // Encode the menopause
@@ -132,20 +132,24 @@ public class Preprocessor {
           encodedDataLine[12] = 0.0;
       }
       // Encode the tumor-size
+      int k = 0;
       for(int j = 0; j < 12; j++){
-        if(dataLineArray[3].compareTo(j + "-" + (j + 4)) == 0){
+        if(dataLineArray[3].compareTo(k + "-" + (k + 4)) == 0){
           encodedDataLine[j + 13] = 1.0;
         } else {
           encodedDataLine[j + 13] = 0.0;
         }
+        k += 5;
       }
       // Encode the inv-nodes
+      k = 0;
       for(int j = 0; j < 13; j++){
         if(dataLineArray[4].compareTo(j + "-" + (j + 2)) == 0){
           encodedDataLine[j + 25] = 1.0;
         } else {
           encodedDataLine[j + 25] = 0.0;
         }
+        k += 3;
       }
       // Encode the node-caps
       switch(dataLineArray[5]) {
@@ -255,6 +259,7 @@ public class Preprocessor {
           encodedDataLine[50] = 0.0;
           encodedDataLine[51] = 0.0;
       }
+      encodedData.add(encodedDataLine);
     }
   }
 }
