@@ -62,7 +62,7 @@ public class Preprocessor {
    */
   public void splitData(int trainingSetSize, Random rng) {
     // Loop through the data
-    for (int i = 0; i < encodedData.size(); i++) {
+    for (int i = 0; i < data.size(); i++) {
       // Get a random index 
       int randomIndex = rng.nextInt(encodedData.size());
       // Get the data at the random index
@@ -75,6 +75,7 @@ public class Preprocessor {
         // Add the data to the test set
         testingSet.add(randomData);
       }
+      encodedData.remove(randomIndex);
     }
   }
 

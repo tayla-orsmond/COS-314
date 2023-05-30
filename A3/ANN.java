@@ -19,14 +19,16 @@ public class ANN {
 
     private double maxEpochs; // maximum number of iterations for training
     private double errorTolerance; // error tolerance for training
+    private int noImpEpochs; // number of epochs of no improvement to wait before stopping training
 
     /**
      * Constructor for the neural network
      * @param rng the random number generator (seeded from main)
      */
-    public ANN(Random rng, double learningRate, double maxEpochs, double errorTolerance) {
+    public ANN(Random rng, double learningRate, double maxEpochs, double errorTolerance, int noImpEpochs) {
         this.maxEpochs = maxEpochs;
         this.errorTolerance = errorTolerance;
+        this.noImpEpochs = noImpEpochs;
         // Initialise the hidden layer
         hiddenLayer = new HiddenNeuron[numHiddenNeurons];
         for (int i = 0; i < numHiddenNeurons; i++) {
@@ -47,8 +49,10 @@ public class ANN {
         double errordifference = 1;
         // Initialise the previous error
         double previouserror = 0;
+        // Initialise the number of epochs
+        int epochs_noImprovement = 0;
         // Loop through the training set
-        for(int i = 0; i < maxEpochs && errordifference > errorTolerance; i++) {
+        for(int i = 0; i < maxEpochs && epochs_noImprovement < noImpEpochs; i++) {
             // Loop through the training set
             for (int j = 0; j < trainingSet.size(); j++) {
                 // Train the network
@@ -58,6 +62,12 @@ public class ANN {
             errordifference = Math.abs(outputNeuron.getError() - previouserror);
             // Set the previous error to the current error
             previouserror = outputNeuron.getError();
+
+            if(errordifference < errorTolerance) {
+                epochs_noImprovement++;
+            } else {
+                epochs_noImprovement = 0;
+            }
 
             //Print
             System.out.println("Epoch: " + i + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
