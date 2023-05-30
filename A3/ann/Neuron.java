@@ -1,3 +1,4 @@
+package ann;
 // Tayla Orsmond u21467456
 // An abstract class that represents a neuron in a neural network
 // The neural network is trained using the backpropagation algorithm

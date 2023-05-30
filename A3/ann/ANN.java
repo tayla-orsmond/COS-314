@@ -1,3 +1,4 @@
+package ann;
 // Tayla Orsmond u21467456
 // A class that represents a neural network
 // The neural network is trained using the backpropagation algorithm
@@ -24,6 +25,10 @@ public class ANN {
     /**
      * Constructor for the neural network
      * @param rng the random number generator (seeded from main)
+     * @param learningRate the learning rate
+     * @param maxEpochs the maximum number of epochs
+     * @param errorTolerance the error tolerance
+     * @param noImpEpochs the number of epochs of no improvement
      */
     public ANN(Random rng, double learningRate, double maxEpochs, double errorTolerance, int noImpEpochs) {
         this.maxEpochs = maxEpochs;
@@ -70,7 +75,7 @@ public class ANN {
             }
 
             //Print
-            System.out.println("Epoch: " + i + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
     }
 

@@ -1,3 +1,4 @@
+package ann;
 // Tayla Orsmond u21467456
 // A class that represents a neuron in the hidden layer of a neural network
 // This neuron makes use of the ReLU activaton function

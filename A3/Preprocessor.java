@@ -4,7 +4,6 @@
 // The preprocessor splits the data into training and testing data
 // The preprocessor uses hot-one encoding to encode the data
 
-
 /*
  * Attribute Information:
    1. Class: no-recurrence-events, recurrence-events
@@ -29,6 +28,10 @@ public class Preprocessor {
   ArrayList<double[]> encodedData; // The encoded data
   ArrayList<double[]> trainingSet; // The encoded training set
   ArrayList<double[]> testingSet; // The encoded test set
+  // Parallel arrays for GP
+  ArrayList<String[]> encodedDataText; // The text version of the encoded data
+  ArrayList<String[]> trainingSetText; // The text version of the training set
+  ArrayList<String[]> testingSetText; // The text version of the test set
 
   /**
    * Constructor for the preprocessor
@@ -36,9 +39,12 @@ public class Preprocessor {
    */
   public Preprocessor(ArrayList<String> data) {
     this.data = data;
-    encodedData = new ArrayList<double[]>();
-    trainingSet = new ArrayList<double[]>();
-    testingSet = new ArrayList<double[]>();
+    encodedData = new ArrayList<>();
+    encodedDataText = new ArrayList<>();
+    trainingSet = new ArrayList<>();
+    testingSet = new ArrayList<>();
+    trainingSetText = new ArrayList<>();
+    testingSetText = new ArrayList<>();
   }
 
   // Getters
@@ -54,6 +60,18 @@ public class Preprocessor {
     return testingSet;
   }
 
+  public ArrayList<String[]> getEncodedDataText() {
+    return encodedDataText;
+  }
+
+  public ArrayList<String[]> getTrainingSetText() {
+    return trainingSetText;
+  }
+
+  public ArrayList<String[]> getTestingSetText() {
+    return testingSetText;
+  }
+
   /**
    * Method to split the data into a training set and a test set
    * The data is randomly split into a training set and a test set to ensure that the neural network is not overfitting
@@ -67,15 +85,19 @@ public class Preprocessor {
       int randomIndex = rng.nextInt(encodedData.size());
       // Get the data at the random index
       double[] randomData = encodedData.get(randomIndex);
+      String[] randomDataText = encodedDataText.get(randomIndex);
       // If the training set is not full
       if (trainingSet.size() < trainingSetSize) {
         // Add the data to the training set
         trainingSet.add(randomData);
+        trainingSetText.add(randomDataText);
       } else {
         // Add the data to the test set
         testingSet.add(randomData);
+        testingSetText.add(randomDataText);
       }
       encodedData.remove(randomIndex);
+      encodedDataText.remove(randomIndex);
     }
   }
 
@@ -261,6 +283,7 @@ public class Preprocessor {
           encodedDataLine[51] = 0.0;
       }
       encodedData.add(encodedDataLine);
+      encodedDataText.add(dataLineArray);
     }
   }
 }
