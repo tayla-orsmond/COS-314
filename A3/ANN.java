@@ -86,7 +86,6 @@ public class ANN {
             } else {
                 System.out.println("\t\u001B[31mIncorrect\u001B[0m");
             }
-                
         }
         // Print the accuracy of the network
         System.out.println("==================================================");
@@ -105,7 +104,6 @@ public class ANN {
         feedforward(inputs);
         // Calculate the error information term of the network
         outputNeuron.calculateError((target - outputNeuron.getOutput()));
-        System.out.println("Target: "+ target + " output " + outputNeuron.getOutput() + " error " + outputNeuron.getError());
         // Backpropagate the error information term through the network
         backpropagate(inputs);
     }
