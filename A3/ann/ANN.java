@@ -50,7 +50,13 @@ public class ANN {
      * Or after 50 iterations
      * @param trainingSet the training set
      */
-    public void trainNetwork(ArrayList<double[]> trainingSet) {
+    public String trainNetwork(ArrayList<double[]> trainingSet) {
+        // Initialise the number of correct classifications
+        int correct = 0;
+        int falsePos = 0;
+        int falseNeg = 0;
+        int truePos = 0;
+        int trueNeg = 0;
         // Initialise the error difference
         double errordifference = 1;
         // Initialise the previous error
@@ -59,10 +65,34 @@ public class ANN {
         int noImprovement = 0;
         // Loop through the training set
         for(int i = 0; i < maxEpochs && noImprovement < noImpEpochs; i++) {
+            // Reset the number of correct classifications
+            correct = 0;
+            falsePos = 0;
+            falseNeg = 0;
+            truePos = 0;
+            trueNeg = 0;
             // Loop through the training set
             for (int j = 0; j < trainingSet.size(); j++) {
                 // Train the network
                 train(Arrays.copyOfRange(trainingSet.get(j), 1, trainingSet.get(i).length), trainingSet.get(j)[0]);
+                // Calculate the output class of the network
+                String outputClass = determineClass();
+                String targetClass = (trainingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events");
+                // Check if the output class is correct
+                if(outputClass.equals(targetClass)) {
+                    correct++;
+                    if(outputClass.equals("recurrence-events")){
+                        truePos++;
+                    } else {
+                        trueNeg++;
+                    }
+                } else {
+                    if(outputClass.equals("recurrence-events")){
+                        falsePos++;
+                    } else {
+                        falseNeg++;
+                    }
+                }
             }
             // Calculate the error difference
             errordifference = Math.abs(outputNeuron.getError() - previouserror);
@@ -76,8 +106,26 @@ public class ANN {
             }
 
             //Print
-            //System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
+
+        // Calculate the F-measure
+        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double accuracy = (double) correct / trainingSet.size() * 100;
+        String res = "";
+        res += accuracy + "% \t";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += fMeasure + "\n";
+
+        // Print the accuracy & F-measure of the network
+        System.out.println("[TRAIN SET] ======================================");
+        System.out.println("Accuracy: " + accuracy + "%");
+        System.out.println("Correct: " + correct);
+        System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        System.out.println("F-Measure: " + fMeasure);
+        System.out.println("==================================================");
+        return res;
     }
 
     /**
@@ -120,21 +168,20 @@ public class ANN {
         }
         // Calculate the F-measure
         double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        // res += "Accuracy: " + (double) correct / testingSet.size() * 100 + "%\n";
-        // res += "F-Measure: " + fMeasure + "\n";
-        // res += "==================================================\n";
-        res += (double) correct / testingSet.size() * 100 + "%\n";
-        // res += (double) correct / testingSet.size() * 100 + "% \t" + fMeasure + "\n";
+        res += accuracy + "% \t";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += fMeasure + "\n";
 
         // Print the accuracy & F-measure of the network
-        // System.out.println("==================================================");
-        System.out.println("Accuracy: " + (double) correct / testingSet.size() * 100 + "%");
-        // System.out.println("Correct: " + correct);
-        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        System.out.println("[TEST SET] =======================================");
+        System.out.println("Accuracy: " + accuracy + "%");
+        System.out.println("Correct: " + correct);
+        System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
         System.out.println("F-Measure: " + fMeasure);
-        // System.out.println("==================================================");
+        System.out.println("==================================================");
         return res;
     }
 

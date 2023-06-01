@@ -89,7 +89,7 @@ public class GP {
 
         // Execute each program and establish the fitness
         for(DecisionNode tree : population){
-            test(tree, trainingSet);
+            test(tree, trainingSet, false, false);
         }
         
         // Set the best tree and fitness
@@ -127,7 +127,7 @@ public class GP {
 
             // Execute each new program and establish the fitness
             for(DecisionNode tree : newGeneration){
-                test(tree, trainingSet);
+                test(tree, trainingSet, false, false);
             }
 
             // Set the best tree and fitness
@@ -141,18 +141,20 @@ public class GP {
             }
 
             // If the average fitness of the new generation is more, then replace the old generation (generational replacement)
-            if(newGeneration.stream().mapToDouble(DecisionNode::getFitness).average().getAsDouble() >= oldAvgFitness){
+            double avgFitness = newGeneration.stream().mapToDouble(DecisionNode::getFitness).average().getAsDouble();
+            if(avgFitness >= oldAvgFitness){
                 population = newGeneration;
             }
 
             generation++;
 
-            //System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness);
-            //System.out.println("Best Tree Depth: " + best.getTreeDepth(0));
-            // System.out.println("Best Tree: ");
-            // best.printTree(0);
-            // System.out.println();
+            // System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
         }
+        // System.out.println("Best Tree: ");
+        // best.printTree(0);
+        // System.out.println();
+
+        // test(best, trainingSet, true, false);
     }
 
     /**
@@ -289,7 +291,7 @@ public class GP {
      * @param trainingSet The training set to test the tree on
      * @return The fitness of the tree
      */
-    public String test(DecisionNode tree, ArrayList<String[]> testingSet){
+    public String test(DecisionNode tree, ArrayList<String[]> testingSet, Boolean print, Boolean test){
         // Test the tree on the training set
         int correct = 0;
         int falsePos = 0;
@@ -318,22 +320,28 @@ public class GP {
         }
         // Calculate the F-measure
         double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        // res += "Accuracy: " + (double) correct / testingSet.size() * 100 + "%\n";
-        // res += "F-Measure: " + fMeasure + "\n";
-        // res += "==================================================\n";
-        tree.setFitness((double) correct / testingSet.size() * 100);
-        res += (double) correct / testingSet.size() * 100 + "%\n";
-        // res += (double) correct / testingSet.size() * 100 + "% \t" + fMeasure + "\n";
+        res += accuracy + "% \n";
+        // res += accuracy + "% \t";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += fMeasure + "\n";
 
-        // Print the accuracy & F-measure of the network
-        // System.out.println("==================================================");
-        // System.out.println("Accuracy: " + (double) correct / testingSet.size() * 100 + "%");
-        // System.out.println("Correct: " + correct);
-        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        // System.out.println("F-Measure: " + fMeasure);
-        // System.out.println("==================================================");
+        if(print){
+            // Print the accuracy & F-measure of the network
+            if(test){
+                System.out.println("[TEST SET] =======================================");
+            } else {
+                System.out.println("[TRAIN SET] ======================================");
+            }
+            System.out.println("Accuracy: " + accuracy + "%");
+            System.out.println("Correct: " + correct);
+            System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+            System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+            System.out.println("F-Measure: " + fMeasure);
+            System.out.println("==================================================");
+        }
+
         return res;
     }
 
