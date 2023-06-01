@@ -27,47 +27,47 @@ import java.util.Random;
 import java.util.ArrayList;
 
 public class DecisionNode {
-    private String[] functionalSet = {
+    private final String[] functionalSet = {
         "age", "menopause", "tumor-size", "inv-nodes", "node-caps", "deg-malig", "breast", "breast-quad", "irradiat"
     };
-    private String[] terminalSet = {
+    private final String[] terminalSet = {
         "no-recurrence-events", "recurrence-events"
     };
-    private String[] age = {
+    private final String[] age = {
         "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80-89", "90-99"
     };
-    private String[] menopause = {
+    private final String[] menopause = {
         "lt40", "ge40", "premeno"
     };
-    private String[] tumorSize = {
+    private final String[] tumorSize = {
         "0-4", "5-9", "10-14", "15-19", "20-24", "25-29", 
         "30-34", "35-39", "40-44", "45-49", "50-54", "55-59"
     };
-    private String[] invNodes = {
+    private final String[] invNodes = {
         "0-2", "3-5", "6-8", "9-11", "12-14", "15-17", 
         "18-20", "21-23", "24-26", "27-29", "30-32", "33-35", "36-39"
     };
-    private String[] nodeCaps = {
+    private final String[] nodeCaps = {
         "yes", "no"
     };
-    private String[] degMalig = {
+    private final String[] degMalig = {
         "1", "2", "3"
     };
-    private String[] breast = {
+    private final String[] breast = {
         "left", "right"
     };
-    private String[] breastQuad = {
+    private final String[] breastQuad = {
         "left_up", "left_low", "right_up", "right_low", "central"
     };
-    private String[] irradiat = {
+    private final String[] irradiat = {
         "yes", "no"
     };
 
-    private String[][] allAttributes = {
+    private final String[][] allAttributes = {
         age, menopause, tumorSize, invNodes, nodeCaps, degMalig, breast, breastQuad, irradiat
     };
     
-    private String value; // the value of the attribute / terminal node
+    private String value; // the value of the node (either a terminal or functional value)
     private ArrayList<DecisionNode> children;
     private int numChildren;
     private boolean isTerminal;
@@ -75,18 +75,38 @@ public class DecisionNode {
 
     /**
      * Constructor for the DecisionNode class
-     * @param value the value of the attribute / terminal node
+     * This selects a random attribute from the functional / terminal set and creates a node with that value as well as the correct number of children
+     * @param isTerminal a boolean that indicates whether the node should be a terminal node or not
+     * @param rng a random number generator
      */
-    public DecisionNode(String value, boolean isTerminal) {
-        this.value = value;
+    public DecisionNode(boolean isTerminal, Random rng) {
         this.isTerminal = isTerminal;
-        this.fitness = 0;
-        if(isTerminal) {
-            this.children = null;
-            this.numChildren = 0;
+        if (isTerminal) {
+            value = terminalSet[rng.nextInt(terminalSet.length)];
+            numChildren = 0;
+            children = null;
         } else {
-            this.children = new ArrayList<DecisionNode>();
-            this.numChildren = allAttributes[Arrays.asList(functionalSet).indexOf(value)].length;
+            value = functionalSet[rng.nextInt(functionalSet.length)];
+            numChildren = allAttributes[Arrays.asList(functionalSet).indexOf(value)].length;
+            // scoped to the number of children
+            children = new ArrayList<>(numChildren);
+        }
+    }
+
+    public DecisionNode(boolean isTerminal, Random rng, ArrayList<String> takenValues) {
+        this.isTerminal = isTerminal;
+        if(isTerminal) {
+            value = terminalSet[rng.nextInt(terminalSet.length)];
+            numChildren = 0;
+            children = null;
+        } else {
+            // select a random attribute from the functional set that is not already in the takenValues array
+            do {
+                value = functionalSet[rng.nextInt(functionalSet.length)];
+            } while (takenValues.contains(value));
+            numChildren = allAttributes[Arrays.asList(functionalSet).indexOf(value)].length;
+            // scoped to the number of children
+            children = new ArrayList<>(numChildren);
         }
     }
     
@@ -103,6 +123,13 @@ public class DecisionNode {
         return numChildren;
     }
 
+    public DecisionNode getChild(int index) {
+        if(!this.isTerminal && index < numChildren && index >= 0) {
+            return children.get(index);
+        }
+        throw new IndexOutOfBoundsException("Index out of bounds for child of node");
+    }
+
     public boolean isTerminal() {
         return isTerminal;
     }
@@ -112,21 +139,41 @@ public class DecisionNode {
     }
 
     // Setters
-    public void setChildren(ArrayList<DecisionNode> children) {
-        this.children = children;
-    }
-
-    public void setTerminal(boolean isTerminal) {
-        this.isTerminal = isTerminal;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
+    /**
+     * Change a node from a functional node to a terminal node
+     * This is used in the shrink mutation method (see GP.java) 
+     * @return a boolean that indicates whether the node was changed to a terminal node or not
+     */
+    public boolean setTerminal(Random rng) {
+        if(!this.isTerminal){ // if the node is not a terminal node, then change it to a terminal node
+            this.isTerminal = true;
+            this.value = terminalSet[rng.nextInt(terminalSet.length)];
+            this.numChildren = 0;
+            this.children = null;
+            return true;
+        } 
+        return false; // if the node is already a terminal node, then return false
+    }
+
+    /*
+     * Change a node from a terminal node to a functional node
+     * This is used in the grow mutation method (see GP.java)
+     * @param rng a random number generator
+     * @return a boolean that indicates whether the node was changed to a functional node or not
+     */
+    public boolean setFunctional(Random rng) {
+        if(this.isTerminal){ // if the node is a terminal node, then change it to a functional node
+            this.isTerminal = false;
+            this.value = functionalSet[rng.nextInt(functionalSet.length)];
+            this.numChildren = allAttributes[Arrays.asList(functionalSet).indexOf(value)].length;
+            this.children = new ArrayList<>(numChildren);
+            return true;
+        }
+        return false; // if the node is already a functional node, then return false
+    }    
 
     /**
      * A method that uses the decision tree to classify the data
@@ -138,10 +185,10 @@ public class DecisionNode {
         if (isTerminal) {
             return value;
         }
-        // if the node is not a terminal node, then find the index of the attribute in the functional set
-        int index = Arrays.asList(functionalSet).indexOf(value);
+        // if the node is not a terminal node, then find the index of the node's attribute in the functional set
+        int index = Arrays.asList(functionalSet).indexOf(this.value);
         // find the index of the attribute value in the attribute array
-        if(data[index].equals("?")){
+        if(data[index].equals("?")){ // if the attribute value is unknown, then return the classification of the first child node (i.e., data is made 0)
             return children.get(0).classify(data);
         }
         int attributeIndex = Arrays.asList(allAttributes[index]).indexOf(data[index]);
@@ -154,11 +201,15 @@ public class DecisionNode {
     /**
      * A method that adds a child to the children array
      * @param child the child to add
+     * @throws IndexOutOfBoundsException if the number of children is equal to the maximum number of children
      */
-    public void addChild(DecisionNode child) {
-        if(!isTerminal){
+    public void addChild(DecisionNode child) throws IndexOutOfBoundsException {
+        if(!isTerminal) {
             if(children == null) {
                 children = new ArrayList<>();
+            }
+            if (children.size() == numChildren) {
+                throw new IndexOutOfBoundsException("Cannot add more children to this node, maximum number of children: " + numChildren + " reached");
             }
             children.add(child);
         }
@@ -168,13 +219,29 @@ public class DecisionNode {
      * A method that adds a child to the children array at a specific index (replacing a previous child / null)
      * @param child the child to add
      * @param index the index to add the child to
+     * @throws IndexOutOfBoundsException if the number of children is equal to the maximum number of children
      */
-    public void addChild(DecisionNode child, int index) {
+    public void addChild(DecisionNode child, int index) throws IndexOutOfBoundsException {
         if(!isTerminal && index < numChildren) {
             if(children == null) {
                 children = new ArrayList<>();
             }
             children.add(index, child);
+        } else {
+            throw new IndexOutOfBoundsException("Cannot add children to this node at index: " + index + " and maximum number of children: " + numChildren);
+        }
+    }
+
+    /**
+     * A method that removes a child from the children array
+     * @param index the index of the child to remove
+     * @throws IndexOutOfBoundsException if the number of children is equal to the maximum number of children
+     */
+    public void removeChild(int index) throws IndexOutOfBoundsException {
+        if(!isTerminal && children != null && !children.isEmpty() && index < numChildren) {
+            children.remove(index);
+        } else {
+            throw new IndexOutOfBoundsException("Cannot remove child from this node at index: " + index + " and maximum number of children: " + numChildren);
         }
     }
 
@@ -199,102 +266,31 @@ public class DecisionNode {
      * @param depth the depth of the tree to prune
      */
     public void prune(int depth, Random rng) {
-        // if the node is a terminal node, then return
-        if (isTerminal) {
+        if(isTerminal) { // i.e., nothing to prune
             return;
         }
-        // if the depth is 0, then set the node to a terminal node
-        if (depth == 1) {
-            isTerminal = true;
-            value = rng.nextInt(2) == 0 ? terminalSet[0] : terminalSet[1];
-            children = null;
-            numChildren = 0;
-            return;
-        }
-        // traverse down the tree to the depth
-        for (DecisionNode child : children) {
-            child.prune(depth - 1, rng);
-        }
-    }
-
-    /**
-     * A method that returns the index of the attribute in the functional set
-     * @param attribute the attribute to find the index of
-     * @return the index of the attribute in the functional set
-     */
-    public int getAttributeIndex(String attribute) {
-        return Arrays.asList(functionalSet).indexOf(attribute);
-    }
-
-    /**
-     * A method that returns the index of the terminal node in the terminal set
-     * @param terminal the terminal node to find the index of
-     * @return the index of the terminal node in the terminal set
-     */
-    public int getTerminalIndex(String terminal) {
-        return Arrays.asList(terminalSet).indexOf(terminal);
-    }
-
-    /**
-     * A method that returns the index of the attribute value in the attribute set
-     * @param attribute the attribute to find the index of
-     * @param value the value of the attribute to find the index of
-     * @return the index of the attribute value in the attribute set
-     */
-    public int getAttributeValueIndex(String attribute, String value) {
-        int index = getAttributeIndex(attribute);
-        return Arrays.asList(allAttributes[index]).indexOf(value);
-    }
-
-    /**
-     * A method that returns the attribute at the given index
-     * @param index the index of the attribute to return
-     * @return the attribute at the given index
-     */
-    public String getAttribute(int index) {
-        return functionalSet[index];
-    }
-
-    /**
-     * A method that returns the terminal node at the given index
-     * @param index the index of the terminal node to return
-     * @return the terminal node at the given index
-     */
-    public String getTerminal(int index) {
-        return terminalSet[index];
-    }
-
-    /**
-     * A method that returns the attribute value at the given index
-     * @param attribute the attribute to find the index of
-     * @param index the index of the attribute value to return
-     * @return the attribute value at the given index
-     */
-    public String getAttributeValue(String attribute, int index) {
-        int attributeIndex = getAttributeIndex(attribute);
-        return allAttributes[attributeIndex][index];
-    }
-
-    /**
-     * A method that returns the tree as a string
-     * @return the tree as a string
-     */
-    public String toString() {
-        String result = "";
-        if(isTerminal) {
-            result += "[" + value + "] ";
+        if(depth == 0) {
+            setTerminal(rng);
         } else {
-            result += value + " children: {";
-            for (DecisionNode child : children) {
-                result += child.toString() + ", ";
+            for(DecisionNode child : children) {
+                child.prune(depth - 1, rng);
             }
-            result += "}";
         }
-        return result;
     }
 
-    public DecisionNode getChild(int nextInt) {
-        return children.get(nextInt);
+    /**
+     * A method to print the tree
+     * @param depth the depth of the tree to print
+     */
+    public void printTree(int depth) {
+        if(isTerminal) {
+            System.out.println("  ".repeat(depth) + value);
+        } else {
+            System.out.println("  ".repeat(depth) + value);
+            for(DecisionNode child : children) {
+                child.printTree(depth + 1);
+            }
+        }
     }
 
 }

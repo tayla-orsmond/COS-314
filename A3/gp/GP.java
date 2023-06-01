@@ -4,8 +4,6 @@ package gp;
 // The GP is seeded from main and uses a random forest approach
 // The GP uses the same training and test sets as the ANN
 
-import java.lang.reflect.Array;
-
 // Gp Psuedocode
 /*
  * Create an initial population of programs
@@ -21,14 +19,10 @@ import java.lang.reflect.Array;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
 public class GP {
-    private ArrayList<String> functionalSet = new ArrayList<>();
-    private ArrayList<String> terminalSet = new ArrayList<>();
-
     private DecisionNode best; // The best decision tree
     private double bestFitness; // The fitness of the best decision tree
     private ArrayList<DecisionNode> population; // The population of decision trees
@@ -65,21 +59,6 @@ public class GP {
         this.errorTolerance = errorTolerance;
         this.noImpEpochs = noImpEpochs;
         this.population = new ArrayList<DecisionNode>();
-
-        // Add the functional set
-        functionalSet.add("age");
-        functionalSet.add("menopause");
-        functionalSet.add("tumor-size");
-        functionalSet.add("inv-nodes");
-        functionalSet.add("node-caps");
-        functionalSet.add("deg-malig");
-        functionalSet.add("breast");
-        functionalSet.add("breast-quad");
-        functionalSet.add("irradiat");
-
-        // Add the terminal set
-        terminalSet.add("no-recurrence-events");
-        terminalSet.add("recurrence-events");
     }
 
     // Getters
@@ -99,32 +78,14 @@ public class GP {
     public void evolve(ArrayList<String[]> trainingSet){
         // Create an initial population of programs (random forest)
         for(int i = 0; i < maxForestSize; i++){
-            // Deep Copy the functional set
-            ArrayList<String> attributes = new ArrayList<String>();
-            for(String attribute : functionalSet){
-                attributes.add(attribute);
-            }
-            // Select random attribute from functional set
-            int index = rng.nextInt(attributes.size());
             // Create root node
-            DecisionNode root = new DecisionNode(attributes.get(index), false);
-            // Remove attribute from functional set
-            attributes.remove(index);
-            // Populate all children
-            for(int j = 0; j < root.getNumChildren(); j++){
-                if(maxDepth == 1 || rng.nextDouble() < 0.5){
-                    // Select a random attribute from the terminal set
-                    root.addChild(new DecisionNode(terminalSet.get(rng.nextInt(terminalSet.size())), true));
-                } else {
-                    root.addChild(new DecisionNode(attributes.get(rng.nextInt(attributes.size())), false));
-                }
-            }      
-            // For all children that are not terminal, create the tree
-            for(DecisionNode child : root.getChildren()){
-                if(!child.isTerminal()){
-                    createRandomTree(child, maxDepth, new ArrayList<String>(attributes));
-                }
-            }
+            DecisionNode root = new DecisionNode(false, rng);
+            // Get the root value (taken value)
+            ArrayList<String> takenValues = new ArrayList<String>();
+            takenValues.add(root.getValue());
+            // Create random tree
+            createRandomTree(root, maxDepth, new ArrayList<>(takenValues));
+            // Add tree to population
             population.add(root);
         }
 
@@ -138,35 +99,32 @@ public class GP {
         best = population.get(0);
         bestFitness = best.getFitness();
 
-        // while termination condition not met do {
+        // while termination condition not met do
         int generation = 0;
         int noImprovement = 0;
         while(generation < maxGenerations && noImprovement < noImpEpochs){
-            ArrayList<DecisionNode> newGeneration = new ArrayList<DecisionNode>();
+            ArrayList<DecisionNode> newGeneration = new ArrayList<>();
             double oldAvgFitness =  population.stream().mapToDouble(DecisionNode::getFitness).average().getAsDouble();
-
             // Elitism
             newGeneration.add(best);
             population.remove(best);
-            
             // shuffle the population
             Collections.shuffle(population, rng);
 
-            // split population into those to undergo crossover and those to undergo mutation
             while(newGeneration.size() < maxForestSize){
                 // Select fitter programs to participate in reproduction (tournament selection)
                 DecisionNode parent1 = selectParent();
                 DecisionNode parent2 = selectParent();
 
                 // Create new programs using genetic operators and update the population
-                if(rng.nextDouble() < crossoverRate){ // crossover
+                // if(rng.nextDouble() < crossoverRate){ // crossover
                     DecisionNode[] children = crossover(parent1, parent2);
                     newGeneration.add(children[0]);
                     newGeneration.add(children[1]);
-                } else { // mutation
-                    newGeneration.add(mutate(parent1));
-                    newGeneration.add(mutate(parent2));
-                }
+                // } else { // mutation
+                //     newGeneration.add(mutate(parent1));
+                //     newGeneration.add(mutate(parent2));
+                // }
             }
 
             // Execute each new program and establish the fitness
@@ -176,11 +134,6 @@ public class GP {
 
             // Set the best tree and fitness
             newGeneration.sort((a, b) -> Double.compare(b.getFitness(), a.getFitness()));
-            System.out.println("Fitnesses ");
-            for(DecisionNode tree : newGeneration){
-                System.out.print(tree.getFitness() + " ");
-            }
-            System.out.println();
             if(newGeneration.get(0).getFitness() - bestFitness > errorTolerance){
                 best = newGeneration.get(0);
                 bestFitness = best.getFitness();
@@ -197,8 +150,10 @@ public class GP {
             generation++;
 
             System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness);
-            // System.out.println("Best Tree: \n" + best.toString());
-            // System.out.println("Best Tree depth: "+ best.getTreeDepth(0));
+            System.out.println("Best Tree Depth: " + best.getTreeDepth(0));
+            // System.out.println("Best Tree: ");
+            // best.printTree(0);
+            // System.out.println();
         }
     }
 
@@ -209,31 +164,20 @@ public class GP {
      * @param attributes The available attributes to use
      * @return A random decision tree
      */
-    private DecisionNode createRandomTree(DecisionNode node, int maxDepth, ArrayList<String> attributes){
-        // If the max depth has been reached, return the node
-        if(maxDepth <= 1){
-            return node;
-        }
-        // Remove the node's attribute from the available attributes
-        attributes.remove(node.getValue());
-        
-        // Populate all children
+    private void createRandomTree(DecisionNode node, int depth, ArrayList<String> takenValues){
+        // Populate the children
         for(int j = 0; j < node.getNumChildren(); j++){
-            if(maxDepth == 2 || rng.nextDouble() < 0.5){
-                // Select a random attribute from the terminal set
-                node.addChild(new DecisionNode(terminalSet.get(rng.nextInt(terminalSet.size())), true));
-            } else {
-                node.addChild(new DecisionNode(attributes.get(rng.nextInt(attributes.size())), false));
-            }
-        }      
-        // For all children that are not terminal, create the tree
+            boolean isTerminal = rng.nextDouble() < 0.5 || depth == 1;
+            node.addChild(new DecisionNode(isTerminal, rng, takenValues));
+        }
+        // For each child that isn't a terminal node, populate its children
         for(DecisionNode child : node.getChildren()){
             if(!child.isTerminal()){
-                createRandomTree(child, maxDepth-1, new ArrayList<String>(attributes));
+                takenValues.add(child.getValue());
+                createRandomTree(child, depth -1, new ArrayList<String>(takenValues));
+                takenValues.remove(child.getValue());
             }
         }
-
-        return node;
     }
     
 
@@ -259,40 +203,40 @@ public class GP {
      * @return The two children
      */
     private DecisionNode[] crossover(DecisionNode parent1, DecisionNode parent2){
-        // Save the roots of the parents
-        DecisionNode[] children = new DecisionNode[2];
-        children[0] = parent1;
-        children[1] = parent2;
-
-        // Select a random node from each parent
-        DecisionNode node1 = parent1; 
-        int node1Index = 0;
-        DecisionNode node2 = parent2;
-        int node2Index = 0;
-
+        // find the depth of the smaller tree
+        int treeDepth = Math.min(parent1.getTreeDepth(0), parent2.getTreeDepth(0));
         // Select a random depth for the crossover point
-        int depth = rng.nextInt(maxDepth - minDepth) + minDepth;
-        // Traverse the parents to the crossover point
-        for(int i = 1; i < depth && !node1.isTerminal(); i++){
-            parent1 = node1;
-            node1Index = rng.nextInt(node1.getNumChildren());
-            node1 = node1.getChild(node1Index);
+        if((treeDepth - minDepth) <= 0){
+            treeDepth = maxDepth;
         }
-        for(int i = 1; i < depth && !node2.isTerminal(); i++){
-            parent2 = node2;
-            node2Index = rng.nextInt(node2.getNumChildren());
-            node2 = node2.getChild(node2Index);
+        int depth = rng.nextInt(treeDepth - minDepth) + minDepth;
+        // Traverse the first parent to the crossover point
+        DecisionNode node1 = parent1;
+        int index1 = 0;
+        DecisionNode p1 = parent1;
+        for(int i = 0; i < depth && !node1.isTerminal(); i++){
+            p1 = node1;
+            index1 = rng.nextInt(node1.getNumChildren());
+            node1 = node1.getChild(index1);
         }
+        // Traverse the second parent to the crossover point
+        DecisionNode node2 = parent2;
+        int index2 = 0;
+        DecisionNode p2 = parent2;
+        for(int i = 0; i < depth && !node2.isTerminal(); i++){
+            p2 = node2;
+            index2 = rng.nextInt(node2.getNumChildren());
+            node2 = node2.getChild(index2);
+        }
+        // Swap the children at the crossover point
+        p1.addChild(node2, index1);
+        p2.addChild(node1, index2);
 
-        // Swap the subtrees
-        parent1.addChild(node2, node1Index);
-        parent2.addChild(node1, node2Index);
+        // Prune the children to ensure they are valid
+        parent1.prune(maxDepth, rng);
+        parent2.prune(maxDepth, rng);
 
-        // prune the children
-        children[0].prune(maxDepth, rng);
-        children[1].prune(maxDepth, rng);
-
-        return children;
+        return new DecisionNode[]{parent1, parent2};
     }
 
     /**
@@ -309,32 +253,32 @@ public class GP {
 
         // Select a random depth for the mutation point
         int depth = rng.nextInt(maxDepth - minDepth) + minDepth;
-        // Deep Copy the functional set
-        ArrayList<String> attributes = new ArrayList<String>();
-        for(String attribute : functionalSet){
-            attributes.add(attribute);
-        }
+        ArrayList<String> takenValues = new ArrayList<>();
+        takenValues.add(node.getValue());
         // Traverse the parent to the mutation point
-        for(int i = 1; i < depth && !node.isTerminal(); i++){
+        for(int i = 0; i < depth && !node.isTerminal(); i++){
             parent = node;
             nodeIndex = rng.nextInt(node.getNumChildren());
             node = node.getChild(nodeIndex);
             // remove the attribute from the list of available attributes
-            attributes.remove(node.getValue());
+            takenValues.add(node.getValue());
         }
 
         // Decide whether to grow or shrink the subtree
         if(rng.nextInt() < 0.5){
-            // Grow the subtree
-            parent.setTerminal(true);
-            DecisionNode subtreeRoot = new DecisionNode(attributes.get(rng.nextInt(attributes.size())), false);
-            createRandomTree(subtreeRoot, maxDepth - depth, attributes);
-            parent.addChild(subtreeRoot, nodeIndex);
+            // grow the subtree
+            if(node.setFunctional(rng)){ // if terminal successfully changed to functional
+                createRandomTree(node, maxDepth - depth, new ArrayList<>(takenValues));
+            } else { // if already functional, shrink the subtree
+                node.setTerminal(rng);
+                node.setFunctional(rng);
+                createRandomTree(node, maxDepth - depth, new ArrayList<>(takenValues));                
+            }
         } else {
-            // Shrink the subtree
-            parent.addChild(new DecisionNode(terminalSet.get(rng.nextInt(terminalSet.size())), true), nodeIndex);
+            // shrink the subtree
+            node.setTerminal(rng);
         }
-
+        
         // prune the child
         child.prune(maxDepth, rng);
 

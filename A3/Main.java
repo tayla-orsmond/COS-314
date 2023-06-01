@@ -24,14 +24,15 @@ public class Main {
         }
 
         // Training set size
-        final int TRAINING_SIZE = (int) Math.floor(0.7 * 286); // 70% of the data
+        final int TRAINING_SIZE = (int) Math.round(0.7 * 286); // 70% of the data
         // ========== Random seed
         final int seed = Math.abs((int) System.currentTimeMillis()); 
+        // final int seed = 1923801576;
         Random rng = new Random(seed);
         // ==========
         // Preprocess the data
         System.out.println("[Main] Preprocessing data...");
-        System.out.println("Training set size: " + TRAINING_SIZE + "/286 (" + Math.floor(TRAINING_SIZE / 286.0 * 100)  + "%)");
+        System.out.println("Training set size: " + TRAINING_SIZE + "/286 (" + Math.round(TRAINING_SIZE / 286.0 * 100)  + "%)");
         Preprocessor preprocessor = new Preprocessor(data);
         preprocessor.encodeData();
         preprocessor.splitData(TRAINING_SIZE, rng);
@@ -76,11 +77,11 @@ public class Main {
     private static void runGP(Preprocessor preprocessor, Random rng, int seed){
         // Hyperparameters
         final int MAX_DEPTH = 5;
-        final int TOURNAMENT = 10;
+        final int TOURNAMENT = 5;
         final double MUTATION_RATE = 0.2;
         final double CROSSOVER_RATE = 0.8;
         final double ERROR_TOLERANCE = 0.01;
-        final int NO_IMP_EPOCHS = 10;
+        final int NO_IMP_EPOCHS = 5;
 
         // Train the GP
         System.out.println("==================================================");
