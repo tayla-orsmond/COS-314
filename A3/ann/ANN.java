@@ -13,7 +13,7 @@ import java.util.Random;
 
 public class ANN {
     private int numInputs = 51;
-    private int numHiddenNeurons = 9;
+    private int numHiddenNeurons;
     private HiddenNeuron[] hiddenLayer; // hidden layer
     private double[] hiddenLayerOutputs; // outputs of the hidden layer
     private OutputNeuron outputNeuron; // output neuron
@@ -30,10 +30,11 @@ public class ANN {
      * @param errorTolerance the error tolerance
      * @param noImpEpochs the number of epochs of no improvement
      */
-    public ANN(Random rng, double learningRate, double maxEpochs, double errorTolerance, int noImpEpochs) {
+    public ANN(Random rng, double learningRate, double maxEpochs, double errorTolerance, int noImpEpochs, int numHiddenNeurons) {
         this.maxEpochs = maxEpochs;
         this.errorTolerance = errorTolerance;
         this.noImpEpochs = noImpEpochs;
+        this.numHiddenNeurons = numHiddenNeurons;
         // Initialise the hidden layer
         hiddenLayer = new HiddenNeuron[numHiddenNeurons];
         for (int i = 0; i < numHiddenNeurons; i++) {
@@ -55,9 +56,9 @@ public class ANN {
         // Initialise the previous error
         double previouserror = 0;
         // Initialise the number of epochs
-        int epochs_noImprovement = 0;
+        int noImprovement = 0;
         // Loop through the training set
-        for(int i = 0; i < maxEpochs && epochs_noImprovement < noImpEpochs; i++) {
+        for(int i = 0; i < maxEpochs && noImprovement < noImpEpochs; i++) {
             // Loop through the training set
             for (int j = 0; j < trainingSet.size(); j++) {
                 // Train the network
@@ -69,13 +70,13 @@ public class ANN {
             previouserror = outputNeuron.getError();
 
             if(errordifference < errorTolerance) {
-                epochs_noImprovement++;
+                noImprovement++;
             } else {
-                epochs_noImprovement = 0;
+                noImprovement = 0;
             }
 
             //Print
-            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            //System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
     }
 
@@ -83,29 +84,58 @@ public class ANN {
      * Method to test the network
      * @param testingSet the testing set
      */
-    public void testNetwork(ArrayList<double[]> testingSet) {
+    public String testNetwork(ArrayList<double[]> testingSet) {
         // Initialise the number of correct classifications
         int correct = 0;
+        int falsePos = 0;
+        int falseNeg = 0;
+        int truePos = 0;
+        int trueNeg = 0;
         // Loop through the testing set
         for (int i = 0; i < testingSet.size(); i++) {
             // Calculate the output of the network
             feedforward(Arrays.copyOfRange(testingSet.get(i), 1, testingSet.get(i).length));
             // Calculate the output class of the network
             String outputClass = determineClass();
+            String targetClass = (testingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events");
             //Print
-            System.out.println("Output: " + outputNeuron.getOutput() + " \n\tOutput Class: " + outputClass + " \tTarget Class: " + (testingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events"));
+            //System.out.println("Output: " + outputNeuron.getOutput() + " \n\tOutput Class: " + outputClass + " \tTarget Class: " + targetClass);
             // Check if the output class is correct
-            if(outputClass.equals(testingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events")) {
+            if(outputClass.equals(targetClass)) {
                 correct++;
-                System.out.println("\t\u001B[32mCorrect\u001B[0m");
+                if(outputClass.equals("recurrence-events")){
+                    truePos++;
+                } else {
+                    trueNeg++;
+                }
+                //System.out.println("\t\u001B[32mCorrect\u001B[0m");
             } else {
-                System.out.println("\t\u001B[31mIncorrect\u001B[0m");
+                if(outputClass.equals("recurrence-events")){
+                    falsePos++;
+                } else {
+                    falseNeg++;
+                }
+                //System.out.println("\t\u001B[31mIncorrect\u001B[0m");
             }
         }
-        // Print the accuracy of the network
-        System.out.println("==================================================");
+        // Calculate the F-measure
+        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        String res = "";
+        // res += "Accuracy: " + (double) correct / testingSet.size() * 100 + "%\n";
+        // res += "F-Measure: " + fMeasure + "\n";
+        // res += "==================================================\n";
+        res += (double) correct / testingSet.size() * 100 + "%\n";
+        // res += (double) correct / testingSet.size() * 100 + "% \t" + fMeasure + "\n";
+
+        // Print the accuracy & F-measure of the network
+        // System.out.println("==================================================");
         System.out.println("Accuracy: " + (double) correct / testingSet.size() * 100 + "%");
-        System.out.println("==================================================");
+        // System.out.println("Correct: " + correct);
+        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("==================================================");
+        return res;
     }
 
     /**
