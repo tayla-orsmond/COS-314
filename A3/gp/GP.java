@@ -148,13 +148,13 @@ public class GP {
 
             generation++;
 
-            // System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
+            System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
         }
-        // System.out.println("Best Tree: ");
-        // best.printTree(0);
-        // System.out.println();
+        System.out.println("Best Tree: ");
+        best.printTree(0);
+        System.out.println();
 
-        // test(best, trainingSet, true, false);
+        test(best, trainingSet, true, false);
     }
 
     /**
@@ -322,10 +322,9 @@ public class GP {
         double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        res += accuracy + "% \n";
-        // res += accuracy + "% \t";
-        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += fMeasure + "\n";
+        res += accuracy + "% \t";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += fMeasure + "\n";
 
         if(print){
             // Print the accuracy & F-measure of the network
