@@ -27,9 +27,10 @@ public class Main {
             return;
         }
 
-        parameterTuneANN(data);
+        // parameterTuneANN(data);
+        parameterTuneGP(data);
 
-        // Training set size
+        // // Training set size
         // final int TRAINING_SIZE = (int) Math.round(0.7 * 286); // 70% of the data
         // // ========== Random seed
         // final int seed = Math.abs((int) System.currentTimeMillis()); 
@@ -109,14 +110,14 @@ public class Main {
         System.out.println("Seed: " + seed);
         System.out.println("==================================================");
         System.out.println("\n === [M] Training GP (evolving trees)... ===\n");
-        GP gp = new GP(rng, MAX_DEPTH, TOURNAMENT, MUTATION_RATE, CROSSOVER_RATE, ERROR_TOLERANCE, NO_IMP_EPOCHS);
+        GP gp = new GP(rng, MAX_DEPTH, TOURNAMENT, CROSSOVER_RATE, ERROR_TOLERANCE, NO_IMP_EPOCHS);
         gp.evolve(preprocessor.getTrainingSetText());
         DecisionNode bestTree = gp.getBest();
 
         // Test the GP
         System.out.println("\n=== [M] Testing GP (with best tree)... ===\n");
-        double accuracy = gp.test(bestTree, preprocessor.getTestingSetText());
-        System.out.println("Accuracy: "+ accuracy * 100 + "%");
+        String accuracy = gp.test(bestTree, preprocessor.getTestingSetText());
+        System.out.println("Accuracy: "+ accuracy);
     }
 
     public static void parameterTuneANN(ArrayList<String> data){
@@ -130,7 +131,7 @@ public class Main {
         ArrayList<String> results = new ArrayList<>();
         
         // Test each parameter one at a time over 100 runs
-        // for(int i = 0; i < 10; i++){
+        // for(int i = 0; i < NUM_HIDDEN_NODES.length; i++){
             for(int j = 0; j < 100; j++){
                 // Training set size
                 final int TRAINING_SIZE = (int) Math.round(0.7 * 286); // 70% of the data
@@ -152,7 +153,6 @@ public class Main {
                 System.out.println("Seed: " + seed);
                 // System.out.println("==================================================");
                 // Write to file:
-                // Write to file
                 String res = "";
                 // res += "==================================================\n";
                 // res += "Learning Rate: " + LEARNING_RATE[i] + "\n";
@@ -174,6 +174,87 @@ public class Main {
             }
         // }
         String path = "tuning/ann/tune_SEEDS.txt";
+        try {
+            // Create a new file
+            File file = new File(path);
+            // If the file doesn't exist, create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            // Create a new file writer
+            FileWriter writer = new FileWriter(file);
+            // Write the results to the file
+            for(String res : results){
+                writer.write(res);
+            }
+            // Close the file writer
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("[Main] Error writing to file " + path + ": ");
+            e.printStackTrace();
+        }   
+    }
+
+    public static void parameterTuneGP(ArrayList<String> data){
+        // HyperParameters
+        final double[] CROSSOVER_RATE = {0.01, 0.1, 0.2, 0.5, 0.7, 0.9, 1.0};
+        int[] NO_IMP_GENS = {1, 2, 5, 10, 20, 35, 50};
+        final int [] MAX_DEPTH = {3, 4, 5, 6, 7, 8, 9};
+        final int [] TOURNAMENT = {2, 5, 10, 15, 20, 50, 70};
+        double[] ERROR_TOLERANCE = {0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.7};
+
+
+        ArrayList<String> results = new ArrayList<>();
+        
+        // Test each parameter one at a time over 100 runs
+        // for(int i = 0; i < NO_IMP_GENS.length; i++){
+            for(int j = 0; j < 100; j++){
+                // Training set size
+                final int TRAINING_SIZE = (int) Math.round(0.7 * 286); // 70% of the data
+                // ================================================== Random seed
+                final int seed = Math.abs((int) System.currentTimeMillis());
+                Random rng = new Random(seed);
+                // ==================================================
+                // Preprocess the data
+                Preprocessor preprocessor = new Preprocessor(data);
+                preprocessor.encodeData();
+                preprocessor.splitData(TRAINING_SIZE, rng);
+                // Train the network
+                System.out.println("==================================================");
+                // System.out.println("Max Depth: " + MAX_DEPTH[i]);
+                // System.out.println("Tournament Size: " + TOURNAMENT[i]);
+                // System.out.println("Mutation Rate: " + MUTATION_RATE[i]);
+                // System.out.println("Crossover Rate: " + CROSSOVER_RATE[i]);
+                // System.out.println("Error Tolerance: " + ERROR_TOLERANCE[i]);
+                // System.out.println("No Improvement Generations: " + NO_IMP_GENS[i]);
+                System.out.println("Seed: " + seed);
+                // System.out.println("==================================================");
+                // Write to file:
+                // Write to file
+                String res = "";
+                // res += "==================================================\n";
+                // res += "Max Depth: " + MAX_DEPTH[i] + "\n";
+                // res += "Tournament Size: " + TOURNAMENT[i] + "\n";
+                // res += "Mutation Rate: " + MUTATION_RATE[i] + "\n";
+                // res += "Crossover Rate: " + CROSSOVER_RATE[i] + "\n";
+                // res += "Error Tolerance: " + ERROR_TOLERANCE[i] + "\n";
+                // res += "No Improvement Epochs: " + NO_IMP_EPOCHS[i] + "\n";
+                // res += "Seed: " + seed + "\n";
+                // res += "---------------------------------------------------\n";
+                res += seed + "\t";
+
+                GP gp = new GP(rng, MAX_DEPTH[1], TOURNAMENT[5], CROSSOVER_RATE[6], ERROR_TOLERANCE[3], NO_IMP_GENS[4]);
+                gp.evolve(preprocessor.getTrainingSetText());
+                DecisionNode best = gp.getBest();
+
+                //Test the algorithm
+                res += gp.test(best, preprocessor.getTestingSetText());        
+
+                results.add(res);
+            }
+        // }
+        String path = "tuning/gp/tune_SEEDS.txt";
         try {
             // Create a new file
             File file = new File(path);

@@ -33,11 +33,10 @@ public class GP {
     private int maxGenerations = 50; // The maximum number of generations
     private int tournamentSize; // The size of the tournament for selection
 
-    private double mutationRate; // The mutation rate
     private double crossoverRate; // The crossover rate
 
     private double errorTolerance; // The error tolerance
-    private int noImpEpochs; // The number of generations to wait before stopping if no improvement is made
+    private int noImpGens; // The number of generations to wait before stopping if no improvement is made
 
     Random rng; // The random number generator
 
@@ -48,16 +47,15 @@ public class GP {
      * @param mutationRate The mutation rate
      * @param crossoverRate The crossover rate
      * @param errorTolerance The error tolerance
-     * @param noImpEpochs The number of generations to wait before stopping if no improvement is made
+     * @param noImpGens The number of generations to wait before stopping if no improvement is made
      */
-    public GP(Random rng, int maxDepth, int tournamentSize, double mutationRate, double crossoverRate, double errorTolerance, int noImpEpochs){
+    public GP(Random rng, int maxDepth, int tournamentSize, double crossoverRate, double errorTolerance, int noImpGens){
         this.rng = rng;
         this.maxDepth = maxDepth;
         this.tournamentSize = tournamentSize;
-        this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
         this.errorTolerance = errorTolerance;
-        this.noImpEpochs = noImpEpochs;
+        this.noImpGens = noImpGens;
         this.population = new ArrayList<DecisionNode>();
     }
 
@@ -91,7 +89,7 @@ public class GP {
 
         // Execute each program and establish the fitness
         for(DecisionNode tree : population){
-            tree.setFitness(test(tree, trainingSet));
+            test(tree, trainingSet);
         }
         
         // Set the best tree and fitness
@@ -102,7 +100,7 @@ public class GP {
         // while termination condition not met do
         int generation = 0;
         int noImprovement = 0;
-        while(generation < maxGenerations && noImprovement < noImpEpochs){
+        while(generation < maxGenerations && noImprovement < noImpGens){
             ArrayList<DecisionNode> newGeneration = new ArrayList<>();
             double oldAvgFitness =  population.stream().mapToDouble(DecisionNode::getFitness).average().getAsDouble();
             // Elitism
@@ -117,19 +115,19 @@ public class GP {
                 DecisionNode parent2 = selectParent();
 
                 // Create new programs using genetic operators and update the population
-                // if(rng.nextDouble() < crossoverRate){ // crossover
+                if(rng.nextDouble() < crossoverRate){ // crossover
                     DecisionNode[] children = crossover(parent1, parent2);
                     newGeneration.add(children[0]);
                     newGeneration.add(children[1]);
-                // } else { // mutation
-                //     newGeneration.add(mutate(parent1));
-                //     newGeneration.add(mutate(parent2));
-                // }
+                } else { // mutation
+                    newGeneration.add(mutate(parent1));
+                    newGeneration.add(mutate(parent2));
+                }
             }
 
             // Execute each new program and establish the fitness
             for(DecisionNode tree : newGeneration){
-                tree.setFitness(test(tree, trainingSet));
+                test(tree, trainingSet);
             }
 
             // Set the best tree and fitness
@@ -149,8 +147,8 @@ public class GP {
 
             generation++;
 
-            System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness);
-            System.out.println("Best Tree Depth: " + best.getTreeDepth(0));
+            //System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness);
+            //System.out.println("Best Tree Depth: " + best.getTreeDepth(0));
             // System.out.println("Best Tree: ");
             // best.printTree(0);
             // System.out.println();
@@ -291,15 +289,52 @@ public class GP {
      * @param trainingSet The training set to test the tree on
      * @return The fitness of the tree
      */
-    public double test(DecisionNode tree, ArrayList<String[]> trainingSet){
+    public String test(DecisionNode tree, ArrayList<String[]> testingSet){
         // Test the tree on the training set
         int correct = 0;
-        for(String[] instance : trainingSet){
-            if(tree.classify(Arrays.copyOfRange(instance, 1, instance.length)).compareTo(instance[0]) == 0){
+        int falsePos = 0;
+        int falseNeg = 0;
+        int truePos = 0;
+        int trueNeg = 0;
+        for(String[] instance : testingSet){
+            String outputClass = tree.classify(Arrays.copyOfRange(instance, 1, instance.length));
+            String targetClass = instance[0];
+            if(outputClass.equals(targetClass)) {
                 correct++;
+                if(outputClass.equals("recurrence-events")){
+                    truePos++;
+                } else {
+                    trueNeg++;
+                }
+                //System.out.println("\t\u001B[32mCorrect\u001B[0m");
+            } else {
+                if(outputClass.equals("recurrence-events")){
+                    falsePos++;
+                } else {
+                    falseNeg++;
+                }
+                //System.out.println("\t\u001B[31mIncorrect\u001B[0m");
             }
         }
-        return (double)correct / trainingSet.size();
+        // Calculate the F-measure
+        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        String res = "";
+        // res += "Accuracy: " + (double) correct / testingSet.size() * 100 + "%\n";
+        // res += "F-Measure: " + fMeasure + "\n";
+        // res += "==================================================\n";
+        tree.setFitness((double) correct / testingSet.size() * 100);
+        res += (double) correct / testingSet.size() * 100 + "%\n";
+        // res += (double) correct / testingSet.size() * 100 + "% \t" + fMeasure + "\n";
+
+        // Print the accuracy & F-measure of the network
+        // System.out.println("==================================================");
+        // System.out.println("Accuracy: " + (double) correct / testingSet.size() * 100 + "%");
+        // System.out.println("Correct: " + correct);
+        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        // System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("==================================================");
+        return res;
     }
 
 }
