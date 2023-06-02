@@ -106,7 +106,7 @@ public class ANN {
             }
 
             //Print
-            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            //System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
 
         // Calculate the F-measure
@@ -114,17 +114,17 @@ public class ANN {
         double accuracy = (double) correct / trainingSet.size() * 100;
         String res = "";
         res += accuracy + "% \t";
-        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        res += fMeasure + "\n";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += fMeasure + "\n";
 
         // Print the accuracy & F-measure of the network
-        System.out.println("[TRAIN SET] ======================================");
-        System.out.println("Accuracy: " + accuracy + "%");
-        System.out.println("Correct: " + correct);
-        System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        System.out.println("F-Measure: " + fMeasure);
-        System.out.println("==================================================");
+        // System.out.println("[TRAIN SET] ======================================");
+        // System.out.println("Accuracy: " + accuracy + "%");
+        // System.out.println("Correct: " + correct);
+        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        // System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("==================================================");
         return res;
     }
 
@@ -171,17 +171,17 @@ public class ANN {
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
         res += accuracy + "% \t";
-        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        res += fMeasure + "\n";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += fMeasure + "\n";
 
         // Print the accuracy & F-measure of the network
-        System.out.println("[TEST SET] =======================================");
-        System.out.println("Accuracy: " + accuracy + "%");
-        System.out.println("Correct: " + correct);
-        System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        System.out.println("F-Measure: " + fMeasure);
-        System.out.println("==================================================");
+        // System.out.println("[TEST SET] =======================================");
+        // System.out.println("Accuracy: " + accuracy + "%");
+        // System.out.println("Correct: " + correct);
+        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
+        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
+        // System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("==================================================");
         return res;
     }
 
