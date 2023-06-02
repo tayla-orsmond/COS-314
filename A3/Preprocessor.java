@@ -32,6 +32,8 @@ public class Preprocessor {
   ArrayList<String[]> encodedDataText; // The text version of the encoded data
   ArrayList<String[]> trainingSetText; // The text version of the training set
   ArrayList<String[]> testingSetText; // The text version of the test set
+  int numReccurenceEvents; // The number of recurrence events in the data
+  int numNoReccurenceEvents; // The number of no recurrence events in the data
 
   /**
    * Constructor for the preprocessor
@@ -99,6 +101,14 @@ public class Preprocessor {
       encodedData.remove(randomIndex);
       encodedDataText.remove(randomIndex);
     }
+
+    // Print the number of recurrence events and no recurrence events in the training set
+    System.out.println("Number of recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 1.0).count());
+    System.out.println("Number of no recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 0.0).count());
+    // Print the number of recurrence events and no recurrence events in the test set
+    System.out.println("Number of recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 1.0).count());
+    System.out.println("Number of no recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 0.0).count());
+    System.out.println("==================================================");
   }
 
   /**
@@ -119,9 +129,11 @@ public class Preprocessor {
       switch(dataLineArray[0]) {
         case "no-recurrence-events":
           encodedDataLine[0] = 0.0;
+          numNoReccurenceEvents++;
           break;
         case "recurrence-events":
           encodedDataLine[0] = 1.0;
+          numReccurenceEvents++;
           break;
       }
       // Encode the age
@@ -285,5 +297,10 @@ public class Preprocessor {
       encodedData.add(encodedDataLine);
       encodedDataText.add(dataLineArray);
     }
+
+    System.out.println("===== Encoded data: ");
+    System.out.println("Number of instances: " + encodedData.size());
+    System.out.println("no. reccurence-events: " + numReccurenceEvents);
+    System.out.println("no. no-recurrence-events: " + numNoReccurenceEvents);
   }
 }

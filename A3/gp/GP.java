@@ -4,19 +4,6 @@ package gp;
 // The GP is seeded from main and uses a random forest approach
 // The GP uses the same training and test sets as the ANN
 
-// Gp Psuedocode
-/*
- * Create an initial population of programs
-    Execute each program and establish the fitness
-    while termination condition not met do {
-        Select fitter programs to participate in reproduction
-        Create new programs using genetic operators and update the population
-            //crossover, mutation & reproduction
-        Execute each new program and establish the fitness
-    } end while
-    return best program
- */
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -148,11 +135,11 @@ public class GP {
 
             generation++;
 
-            // System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
+            System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
         }
-        // System.out.println("Best Tree: ");
-        // best.printTree(0);
-        // System.out.println();
+        System.out.println("Best Tree: ");
+        best.printTree(0);
+        System.out.println();
 
         return test(best, trainingSet, true, false);
     }
@@ -308,38 +295,43 @@ public class GP {
                 } else {
                     trueNeg++;
                 }
-                //System.out.println("\t\u001B[32mCorrect\u001B[0m");
             } else {
                 if(outputClass.equals("recurrence-events")){
                     falsePos++;
                 } else {
                     falseNeg++;
                 }
-                //System.out.println("\t\u001B[31mIncorrect\u001B[0m");
             }
         }
+        // Calculate the precision
+        double precision = (double) truePos / (truePos + falsePos);
+        // Calculate the recall
+        double recall = (double) truePos / (truePos + falseNeg);
         // Calculate the F-measure
-        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double fMeasure = 2 * ((precision * recall) / (precision + recall));
+        // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
         res += accuracy + "% \t";
-        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += fMeasure + "\n";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
-        // if(print){
-        //     // Print the accuracy & F-measure of the network
-        //     if(test){
-        //         System.out.println("[TEST SET] =======================================");
-        //     } else {
-        //         System.out.println("[TRAIN SET] ======================================");
-        //     }
-        //     System.out.println("Accuracy: " + accuracy + "%");
-        //     System.out.println("Correct: " + correct);
-        //     System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        //     System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        //     System.out.println("F-Measure: " + fMeasure);
-        //     System.out.println("==================================================");
-        // }
+        if(print){
+            // Print the accuracy & F-measure of the network
+            if(test){
+                System.out.println("[TEST SET] =======================================");
+            } else {
+                System.out.println("[TRAIN SET] ======================================");
+            }
+            System.out.println("Accuracy: " + accuracy + "%");
+            System.out.println("Precision: " + precision);
+            System.out.println("Recall: " + recall);
+            System.out.println("F-Measure: " + fMeasure);
+            System.out.println("[Correct: " + correct + "]");
+            System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+            System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+            System.out.println("==================================================");
+        }
 
         return res;
     }

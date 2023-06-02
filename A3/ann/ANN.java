@@ -74,10 +74,11 @@ public class ANN {
             // Loop through the training set
             for (int j = 0; j < trainingSet.size(); j++) {
                 // Train the network
-                train(Arrays.copyOfRange(trainingSet.get(j), 1, trainingSet.get(i).length), trainingSet.get(j)[0]);
+                train(Arrays.copyOfRange(trainingSet.get(j), 1, trainingSet.get(j).length), trainingSet.get(j)[0]);
                 // Calculate the output class of the network
                 String outputClass = determineClass();
-                String targetClass = (trainingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events");
+                String targetClass = (trainingSet.get(j)[0] == 0 ? "no-recurrence-events" : "recurrence-events");
+                //Print
                 // Check if the output class is correct
                 if(outputClass.equals(targetClass)) {
                     correct++;
@@ -106,25 +107,32 @@ public class ANN {
             }
 
             //Print
-            //System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
-
+        // Calculate the precision
+        double precision = (double) truePos / (truePos + falsePos);
+        // Calculate the recall
+        double recall = (double) truePos / (truePos + falseNeg);
         // Calculate the F-measure
-        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double fMeasure = 2 * ((precision * recall) / (precision + recall));
+        // Calculate the accuracy
         double accuracy = (double) correct / trainingSet.size() * 100;
+
         String res = "";
         res += accuracy + "% \t";
-        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += fMeasure + "\n";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
         // Print the accuracy & F-measure of the network
-        // System.out.println("[TRAIN SET] ======================================");
-        // System.out.println("Accuracy: " + accuracy + "%");
-        // System.out.println("Correct: " + correct);
-        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        // System.out.println("F-Measure: " + fMeasure);
-        // System.out.println("==================================================");
+        System.out.println("[TRAIN SET]=======================================");
+        System.out.println("Accuracy: " + accuracy + "%");
+        System.out.println("Precision: " + precision);
+        System.out.println("Recall: " + recall);
+        System.out.println("F-Measure: " + fMeasure);
+        System.out.println("[Correct: " + correct + "]");
+        System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+        System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+        System.out.println("==================================================");
         return res;
     }
 
@@ -147,7 +155,6 @@ public class ANN {
             String outputClass = determineClass();
             String targetClass = (testingSet.get(i)[0] == 0 ? "no-recurrence-events" : "recurrence-events");
             //Print
-            //System.out.println("Output: " + outputNeuron.getOutput() + " \n\tOutput Class: " + outputClass + " \tTarget Class: " + targetClass);
             // Check if the output class is correct
             if(outputClass.equals(targetClass)) {
                 correct++;
@@ -156,32 +163,37 @@ public class ANN {
                 } else {
                     trueNeg++;
                 }
-                //System.out.println("\t\u001B[32mCorrect\u001B[0m");
             } else {
                 if(outputClass.equals("recurrence-events")){
                     falsePos++;
                 } else {
                     falseNeg++;
                 }
-                //System.out.println("\t\u001B[31mIncorrect\u001B[0m");
             }
         }
+        // Calculate the precision
+        double precision = (double) truePos / (truePos + falsePos);
+        // Calculate the recall
+        double recall = (double) truePos / (truePos + falseNeg);
         // Calculate the F-measure
-        double fMeasure = correct / Math.max((correct + 0.5 * (falsePos + falseNeg)), 1.0);
+        double fMeasure = 2 * ((precision * recall) / (precision + recall));
+        // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
         res += accuracy + "% \t";
-        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += fMeasure + "\n";
+        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
         // Print the accuracy & F-measure of the network
-        // System.out.println("[TEST SET] =======================================");
-        // System.out.println("Accuracy: " + accuracy + "%");
-        // System.out.println("Correct: " + correct);
-        // System.out.println("TruePos: " + truePos + " \tTrueNeg: "+ trueNeg);
-        // System.out.println("FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg);
-        // System.out.println("F-Measure: " + fMeasure);
-        // System.out.println("==================================================");
+        System.out.println("[TEST SET] =======================================");
+        System.out.println("Accuracy: " + accuracy + "%");
+        System.out.println("Precision: " + precision);
+        System.out.println("Recall: " + recall);
+        System.out.println("F-Measure: " + fMeasure);
+        System.out.println("[Correct: " + correct + "]");
+        System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+        System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+        System.out.println("==================================================");
         return res;
     }
 
