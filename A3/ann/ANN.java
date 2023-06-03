@@ -106,8 +106,8 @@ public class ANN {
                 noImprovement = 0;
             }
 
-            //Print
-            System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
+            // Print
+            // System.out.println("Epoch: " + (i + 1) + " \n\tError: " + outputNeuron.getError() + " \tError Difference: " + errordifference);
         }
         // Calculate the precision
         double precision = (double) truePos / (truePos + falsePos);
@@ -119,20 +119,21 @@ public class ANN {
         double accuracy = (double) correct / trainingSet.size() * 100;
 
         String res = "";
-        res += accuracy + "% \t";
-        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += accuracy + "% \n";
+        // res += accuracy + "% \t";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
-        // Print the accuracy & F-measure of the network
-        System.out.println("[TRAIN SET]=======================================");
-        System.out.println("Accuracy: " + accuracy + "%");
-        System.out.println("Precision: " + precision);
-        System.out.println("Recall: " + recall);
-        System.out.println("F-Measure: " + fMeasure);
-        System.out.println("[Correct: " + correct + "]");
-        System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
-        System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
-        System.out.println("==================================================");
+        // // Print the accuracy & F-measure of the network
+        // System.out.println("[TRAIN SET]=======================================");
+        // System.out.println("Accuracy: " + accuracy + "%");
+        // System.out.println("Precision: " + precision);
+        // System.out.println("Recall: " + recall);
+        // System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("[Correct: " + correct + "]");
+        // System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+        // System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+        // System.out.println("==================================================");
         return res;
     }
 
@@ -180,20 +181,21 @@ public class ANN {
         // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        res += accuracy + "% \t";
-        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += accuracy + "% \n";
+        // res += accuracy + "% \t";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
-        // Print the accuracy & F-measure of the network
-        System.out.println("[TEST SET] =======================================");
-        System.out.println("Accuracy: " + accuracy + "%");
-        System.out.println("Precision: " + precision);
-        System.out.println("Recall: " + recall);
-        System.out.println("F-Measure: " + fMeasure);
-        System.out.println("[Correct: " + correct + "]");
-        System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
-        System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
-        System.out.println("==================================================");
+        // // Print the accuracy & F-measure of the network
+        // System.out.println("[TEST SET] =======================================");
+        // System.out.println("Accuracy: " + accuracy + "%");
+        // System.out.println("Precision: " + precision);
+        // System.out.println("Recall: " + recall);
+        // System.out.println("F-Measure: " + fMeasure);
+        // System.out.println("[Correct: " + correct + "]");
+        // System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+        // System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+        // System.out.println("==================================================");
         return res;
     }
 

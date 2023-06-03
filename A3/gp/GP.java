@@ -135,11 +135,11 @@ public class GP {
 
             generation++;
 
-            System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
+            //System.out.println("Generation: " + generation + " Best Fitness: " + bestFitness + " Avg Fitness: " + avgFitness + " Best Tree Depth: " + best.getTreeDepth(0));
         }
-        System.out.println("Best Tree: ");
-        best.printTree(0);
-        System.out.println();
+        // System.out.println("Best Tree: ");
+        // best.printTree(0);
+        // System.out.println();
 
         return test(best, trainingSet, true, false);
     }
@@ -312,26 +312,27 @@ public class GP {
         // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        res += accuracy + "% \t";
-        res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += accuracy + "%\n";
+        // res += accuracy + "% \t";
+        // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
+        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
-        if(print){
-            // Print the accuracy & F-measure of the network
-            if(test){
-                System.out.println("[TEST SET] =======================================");
-            } else {
-                System.out.println("[TRAIN SET] ======================================");
-            }
-            System.out.println("Accuracy: " + accuracy + "%");
-            System.out.println("Precision: " + precision);
-            System.out.println("Recall: " + recall);
-            System.out.println("F-Measure: " + fMeasure);
-            System.out.println("[Correct: " + correct + "]");
-            System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
-            System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
-            System.out.println("==================================================");
-        }
+        // if(print){
+        //     // Print the accuracy & F-measure of the network
+        //     if(test){
+        //         System.out.println("[TEST SET] =======================================");
+        //     } else {
+        //         System.out.println("[TRAIN SET] ======================================");
+        //     }
+        //     System.out.println("Accuracy: " + accuracy + "%");
+        //     System.out.println("Precision: " + precision);
+        //     System.out.println("Recall: " + recall);
+        //     System.out.println("F-Measure: " + fMeasure);
+        //     System.out.println("[Correct: " + correct + "]");
+        //     System.out.println("[TruePos: " + truePos + " \tTrueNeg: "+ trueNeg + "]");
+        //     System.out.println("[FalsePos: " + falsePos + " \tFalseNeg: "+ falseNeg + "]");
+        //     System.out.println("==================================================");
+        // }
 
         tree.setFitness(accuracy);
         return res;
