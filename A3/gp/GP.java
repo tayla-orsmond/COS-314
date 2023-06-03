@@ -333,6 +333,7 @@ public class GP {
             System.out.println("==================================================");
         }
 
+        tree.setFitness(accuracy);
         return res;
     }
 
