@@ -102,13 +102,13 @@ public class Preprocessor {
       encodedDataText.remove(randomIndex);
     }
 
-    // // Print the number of recurrence events and no recurrence events in the training set
-    // System.out.println("Number of recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 1.0).count());
-    // System.out.println("Number of no recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 0.0).count());
-    // // Print the number of recurrence events and no recurrence events in the test set
-    // System.out.println("Number of recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 1.0).count());
-    // System.out.println("Number of no recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 0.0).count());
-    // System.out.println("==================================================");
+    // Print the number of recurrence events and no recurrence events in the training set
+    System.out.println("Number of recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 1.0).count());
+    System.out.println("Number of no recurrence events in training set: " + trainingSet.stream().filter(x -> x[0] == 0.0).count());
+    // Print the number of recurrence events and no recurrence events in the test set
+    System.out.println("Number of recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 1.0).count());
+    System.out.println("Number of no recurrence events in test set: " + testingSet.stream().filter(x -> x[0] == 0.0).count());
+    System.out.println("==================================================");
   }
 
   /**
@@ -298,9 +298,9 @@ public class Preprocessor {
       encodedDataText.add(dataLineArray);
     }
 
-    // System.out.println("===== Encoded data: ");
-    // System.out.println("Number of instances: " + encodedData.size());
-    // System.out.println("no. reccurence-events: " + numReccurenceEvents);
-    // System.out.println("no. no-recurrence-events: " + numNoReccurenceEvents);
+    System.out.println("===== Encoded data: ");
+    System.out.println("Number of instances: " + encodedData.size());
+    System.out.println("no. reccurence-events: " + numReccurenceEvents);
+    System.out.println("no. no-recurrence-events: " + numNoReccurenceEvents);
   }
 }
