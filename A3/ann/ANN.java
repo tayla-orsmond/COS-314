@@ -119,10 +119,11 @@ public class ANN {
         double accuracy = (double) correct / trainingSet.size() * 100;
 
         String res = "";
-        res += accuracy + "% \n";
-        // res += accuracy + "% \t";
+        res += trainingSet.size() + " \t";
+        res += correct + " \t";
+        res += accuracy + "% \t";
         // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
         // // Print the accuracy & F-measure of the network
         // System.out.println("[TRAIN SET]=======================================");
@@ -181,10 +182,11 @@ public class ANN {
         // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        res += accuracy + "% \n";
-        // res += accuracy + "% \t";
+        res += testingSet.size() + " \t";
+        res += correct + " \t";
+        res += accuracy + "% \t";
         // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
         // // Print the accuracy & F-measure of the network
         // System.out.println("[TEST SET] =======================================");

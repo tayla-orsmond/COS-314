@@ -275,8 +275,9 @@ public class GP {
     /**
      * Test a decision tree using the training set
      * @param tree The decision tree to test
-     * @param trainingSet The training set to test the tree on
-     * @return The fitness of the tree
+     * @param testingSet The training set to test on
+     * @param print Whether to print the results
+     * @param test Whether this is the testing or training set
      */
     public String test(DecisionNode tree, ArrayList<String[]> testingSet, Boolean print, Boolean test){
         // Test the tree on the training set
@@ -312,10 +313,11 @@ public class GP {
         // Calculate the accuracy
         double accuracy = (double) correct / testingSet.size() * 100;
         String res = "";
-        res += accuracy + "%\n";
-        // res += accuracy + "% \t";
+        res += testingSet.size() + " \t";
+        res += correct + " \t";
+        res += accuracy + "% \t";
         // res += truePos + " \t" + trueNeg + " \t" + falsePos + " \t" + falseNeg + " \t";
-        // res += precision + " \t" + recall + " \t" + fMeasure + "\n";
+        res += precision + " \t" + recall + " \t" + fMeasure + "\n";
 
         // if(print){
         //     // Print the accuracy & F-measure of the network
